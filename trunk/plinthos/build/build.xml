@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PlinthOS" default="deploy" basedir=".">
+
+  <description>
+      _______________________________________________________________________
+      
+          PlinthOS:  Open Source Multi-Core and Distributed Computing
+      _______________________________________________________________________
+      
+      Copyright 2003-2008, Emptoris Inc., and individual contributors
+      as indicated by the @author tags. See the copyright.txt file in the
+      distribution for a full listing of individual contributors.
+     
+      This is free software; you can redistribute it and/or modify it
+      under the terms of the GNU Lesser General Public License as
+      published by the Free Software Foundation; either version 2.1 of
+      the License, or (at your option) any later version.
+     
+      This software is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+      Lesser General Public License for more details.
+     
+      You should have received a copy of the GNU Lesser General Public
+      License along with this software; if not, write to the Free
+      Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+      02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+  _______________________                         ___________________
+                         \_______________________/                   \________ 
+    Happy Multi-Core
+                                                   The PlinthOS Team   
+       CRUNCHING          _______________________                     ________
+  _______________________/                       \___________________/        
+
+
+  </description>
+
+  <!--
+      ========================================================================
+  		Configuration variables and setup tasks
+      ========================================================================
+  -->
+  <property environment="env" />
+  <property name="jboss.home" value="${env.JBOSS_HOME}" />
+  <property name="java.home" value="${env.JAVA_HOME}" />
+  <property name="j2ee.home" value="${env.J2EE_HOME}" />
+
+  <property file="build.properties" />
+
+  <target name="init">
+    <tstamp>
+      <format property="TODAY" pattern="MMM dd, yyyy - hh:mm:ss aa" />
+    </tstamp>
+    <echo>Started at: ${TODAY}</echo>
+    <echo>compile.classpath=${compile.classpath}</echo>
+  </target>
+
+  <!-- This target provides the information that is necessary for building -->
+  <target name="info">
+    <echo>
+          _______________________________________________________________________
+             
+               PlinthOS:  Open Source Multi-Core and Distributed Computing
+          _______________________________________________________________________
+
+	      In order to build the PlinthOS project you will need to set 
+	      the following properties:
+
+	          -->  JAVA_HOME
+	          -->  J2EE_HOME
+	          -->  JBOSS_HOME
+
+	      Please, make sure that these environment properties are set in your system.
+
+	      For more information on installing, building, and deploying this project
+	      please see the documentation in the plinthos/docs directory. 
+
+	      Thanks.
+
+_______________________                                ___________________
+                       \______________________________/                   \______________ 
+  Happy Multi-Core
+                                                        The PlinthOS Team   
+     CRUNCHING          ______________________________                     ______________
+_______________________/                              \___________________/              
+    </echo>
+  </target>
+
+  <!--
+      ========================================================================
+  		Compilation and packaging tasks (core build tasks)
+      ========================================================================
+  -->
+
+  <!-- CREATE BUILD DIRECTORIES -->
+  <target name="make-build-dirs">
+    <mkdir dir="${build.dist}" />
+    <mkdir dir="${build.classes}" />
+  </target>
+
+  <!-- CLEAN COMPILE -->
+  <target name="ccompile" 
+          depends="clean,compile"  
+          description="compile the source from scratch"/>
+
+  <!-- COMPILE -->
+  <target name="compile" depends="init,make-build-dirs">
+    <javac srcdir="${pos.src}"
+           fork="true"
+           destdir="${build.classes}"
+           deprecation="${compile.deprecation}"
+           debug="${compile.debug}"
+           failonerror="${compile.failonerror}">
+      <classpath>
+        <pathelement path="${compile.classpath}"/>
+      </classpath>
+    </javac>
+    <property name="forceOverwrite" value="no" />
+  </target>
+
+  <!-- BUILD THE PlinthOS (server) JAR FILE -->
+  <target name="plinthos-jar" depends="compile">
+
+  <!-- Ensure that the meta-inf is clean -->
+    <delete dir="${classes.metainf}" />
+    <mkdir dir="${classes.metainf}" />
+
+    <!-- Copy the configuration files -->
+    <copy file="${pos.src.metainf}/persistence.xml" 
+          todir="${classes.metainf}" />
+
+    <copy file="${pos.src}/org/plinthos/resbundles/ErrorMessages.properties" 
+	  todir="${build.classes}/org/plinthos/resbundles/" />
+  	
+    <!-- Build the server JAR -->
+    <jar jarfile="${build.dist}/${plinthos.jarfile}" manifest="${pos.src.metainf}/MANIFEST.MF">
+      <fileset dir="${build.classes}">
+        <include name="**/*.class" />
+        <include name="**/*.properties" />
+        <include name="META-INF/persistence.xml" />
+      </fileset>
+    </jar>
+  </target>
+
+  <!-- BUILD THE PlinthOS (client) JAR FILE -->
+  <target name="plinthos-client-jar" depends="compile">
+    <jar jarfile="${build.dist}/${plinthos.clientjar}">
+      <fileset dir="${build.classes}">
+        <include name="org/plinthos/plugin/*.class" />
+        <include name="org/plinthos/service/*.class" />
+      </fileset>
+    </jar>
+  </target>
+
+  <!-- BUILD THE PlinthOS WAR FILE -->
+  <target name="plinthos-war" depends="plinthos-jar,plinthos-client-jar">
+    <war destfile="${build.dist}/${plinthos.warfile}" webxml="${pos.web.webinf}/web.xml">
+      <fileset dir="${pos.web}">
+        <include name="**/*.html" />
+      </fileset>
+      <lib dir="${pos.web.webinf}/lib" />
+      <classes dir="${build.classes}" includes="org/plinthos/core/*.class,org/plinthos/core/process/*.class" />
+      <classes file="${pos.web.webinf}/services.xml" />
+    </war>
+  </target>
+
+  <!-- BUILD THE PlinthOS EAR FILE -->
+  <target name="plinthos-ear" depends="plinthos-war">
+
+    <delete file="${build.dist}/${plinthos.earfile}" />
+    <delete dir="${classes.metainf}" />
+    <mkdir dir="${classes.metainf}" />
+
+    <ear destfile="${build.dist}/${plinthos.earfile}" 
+         appxml="${pos.src.metainf}/application.xml"
+         update="true"
+         duplicate="fail"
+         excludesfile="${build.dist}/${plinthos.clientjar}"
+         manifest="${pos.src.metainf}/MANIFEST.MF" >
+	
+      <fileset dir="${build.dist}" includes="PlinthOS.jar,PlinthOS.war" />
+      <fileset dir="${build.classes}">
+       <include name="META-INF/*.xml" />
+      </fileset>
+    </ear>
+  </target>
+
+  <!--
+      ========================================================================
+  		Deployment tasks 
+      ========================================================================
+  -->
+
+  <!-- DEPLOY PlinthOS on the JBOSS server -->
+  <target name="deploy" depends="plinthos-ear">
+    <copy file="${build.dist}/${plinthos.earfile}" todir="${jboss.deploy}" />
+  </target>
+
+  <target name="plinthos-temp-deploy" depends="plinthos-jar">
+    <copy file="${build.dist}/${plinthos.jarfile}" overwrite="true" todir="${jboss.deploy}" />
+  </target>
+	
+  <!-- This target copies all the necessary configuration files for a plinthos installation -->
+  <!-- TODO: rename this to something more appropriate -->
+  <target name="copy-config">
+    <mkdir dir="${plinthos-conf-dir}" />
+    <copy file="${mysql-driver-config}" overwrite="true" todir="${jboss.deploy}" />
+    <copy file="${mysql-driver-file}" overwrite="true" todir="${jboss.deploy.lib}" />
+    <copy file="${jboss-bin-run}" overwrite="true" todir="${jboss.bin}" />
+  </target>
+
+  <!--
+      ========================================================================
+  		Auxiliary tasks 
+      ========================================================================
+  -->
+
+  <!-- CLEAN UP -->
+  <target name="clean" description="clean up" >
+    <delete dir="${build.classes}"/>
+    <delete dir="${build.dist}"/>
+  </target>
+
+  <!-- CLEAN UP EVERYTHING -->
+  <target name="tidy"
+          depends="clean"
+          description="clean up everything, even the Javadocs">
+    
+    <!-- Remove the documentation -->
+    <delete dir="${apidoc.dir}"/>
+    
+    <!-- I use this directory for Eclipse compiled code -->
+    <delete dir="${eclipse.classes}"/>
+    
+    <!-- For those of us who still use Emacs ... sporadically ;-) -->
+    <delete> <fileset dir="${pos.root}" includes="**/*~" defaultexcludes="no"/> </delete>
+  </target>
+
+  <!-- JAVADOC -->
+  <target name="docs" depends="init" description="Generates Javadoc for all source code.">
+
+    <mkdir dir="${apidoc.dir}" />
+
+    <javadoc packagenames="org.*"
+               sourcepath="${pos.src}"
+               classpath="${compile.classpath}"
+               destdir="${apidoc.dir}"
+               windowtitle="PlinthOS API Documentation"
+               access="protected"
+               author="true"
+               version="true"
+               use="true" />
+    </target>
+
+    <!-- RUN THE BIRTH-DEATH SOLVER (testing) -->
+  <target name="runRK4" description="Run the fourth order Runge-Kutta solver of the Birth/Death model.">
+    <java classname="org.plinthos.queue.routing.BirthDeathRK4" fork="yes" failonerror="yes">
+      <classpath>
+        <pathelement path="${build.classes}" />
+        <pathelement path="${compile.classpath}" />
+        <pathelement path="${runtime.classpath}" />
+      </classpath>
+      <arg value="32" />
+      <arg value="5000" />
+      <arg value="10" />
+    </java>
+  </target>
+
+</project>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
