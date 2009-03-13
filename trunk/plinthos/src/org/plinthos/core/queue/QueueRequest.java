@@ -252,11 +252,21 @@ public class QueueRequest {
      */
     public boolean equals ( Object other ) {
     	
-        if ( ( other == null ) || ( !( other instanceof QueueRequest ) ) ) {
-            return false;
+        if ( other == null || !( other instanceof QueueRequest ) ) {
+            return false; 
+        }
+        
+        //USE THIS ONE CAREFULLY :-)
+        if ( !( other instanceof QueueRequest ) ) {
+        	if ( (other instanceof Integer) && (requestId == ((Integer) other).intValue() ) ) {
+        		return true;
+        	} else {
+        		return false;
+        	}
         }
 
         QueueRequest qR = (QueueRequest) other;
+
         if (requestId == qR.getRequestId()) {
         	return true;
         } else {
