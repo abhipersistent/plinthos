@@ -46,6 +46,7 @@ public class DefaultCommandImpl implements Command {
 
 	private static final Logger log = Logger.getLogger(DefaultCommandImpl.class);
 
+	private int requestId;
 	private QueueRequest queueRequest;
 	
 	/* (non-Javadoc)
@@ -68,7 +69,9 @@ public class DefaultCommandImpl implements Command {
 		
 		RequestManager requestMgr = ProcessUtil.getRequestManager();
 		
-		PlinthosRequest plinthosRequest = requestMgr.getRequest(queueRequest.getRequestId());
+    	requestMgr.updateRequestStatus(requestId, PlinthosRequestStatus.IN_PROGRESS);
+
+    	PlinthosRequest plinthosRequest = requestMgr.getRequest(requestId);
 
 		RegisteredTask task = plinthosRequest.getTask();
 
@@ -84,12 +87,12 @@ public class DefaultCommandImpl implements Command {
 
 	    	Object obj = c.newInstance(); 
 
-	    	String status = (String) m.invoke(obj, String.valueOf(queueRequest.getRequestId()), plinthosRequest.getRequestParams());
+	    	String status = (String) m.invoke(obj, String.valueOf(requestId), plinthosRequest.getRequestParams());
 			
 	    	log.info(" Queue Request         : " + queueRequest.getRequestId());
 	    	log.info(" Completed with status : " + status);
 	    	
-	    	requestMgr.updateRequestStatus(queueRequest.getRequestId(), status);
+	    	requestMgr.updateRequestStatus(requestId, status);
 	    	
 	    } catch (Exception eX) {
 	    	
@@ -97,7 +100,7 @@ public class DefaultCommandImpl implements Command {
 	    	log.error("Exception:\n" + eX.getMessage());
 	    	eX.printStackTrace();
 	    	
-	    	requestMgr.updateRequestStatus(queueRequest.getRequestId(), PlinthosRequestStatus.FAILED);
+	    	requestMgr.updateRequestStatus(requestId, PlinthosRequestStatus.FAILED);
 	    }
 	}
 
@@ -107,6 +110,7 @@ public class DefaultCommandImpl implements Command {
 	 */
 	public void setRequest(QueueRequest queueRequest) {
 		this.queueRequest = queueRequest;
+		requestId = queueRequest.getRequestId();
 	}
 
 	public void run() {
