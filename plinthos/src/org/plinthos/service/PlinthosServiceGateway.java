@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.plugin;
+package org.plinthos.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +35,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.plinthos.core.model.PlinthosRequestStatus;
+import org.plinthos.plugin.PlinthosXmlRequest;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -115,7 +117,7 @@ public class PlinthosServiceGateway extends HttpServlet {
 		
 		PlinthosXmlRequest xmlRequest = (PlinthosXmlRequest) xstream.fromXML(xmlData);
 		
-		boolean success = submit(xmlRequest);
+		String responseStatus = submit(xmlRequest);
 		
 		// Can you make it simpler than that?  :-)
 		response.setContentType("text/xml");
@@ -124,11 +126,7 @@ public class PlinthosServiceGateway extends HttpServlet {
 		out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		out.println("<PlinthosService>");
 		out.print("  <Response>");
-		if (success) {
-			out.print("SUBMITTED");
-		} else { 	
-			out.print("FAILED");
-		}
+		out.print(responseStatus);		
 		out.println ("</Response>");
 		out.println("</PlinthosService>");
 		out.flush();
@@ -144,7 +142,7 @@ public class PlinthosServiceGateway extends HttpServlet {
 		// Put all your initialization code here
 	}
 
-	private boolean submit(PlinthosXmlRequest xml) {
+	private String submit(PlinthosXmlRequest xml) {
         
 		// TODO: This will attempt to get a connection once.
 		// Clearly, we can improve this by retrying a configurable number of times ...
@@ -153,21 +151,27 @@ public class PlinthosServiceGateway extends HttpServlet {
 		if ( null == jdbc ) {
 			
 			//Oops, we didn't get a connection!
-			return  false;
+			log.error("Could not obtain a JDBC connection from the database!");
+			
+			return  PlinthosRequestStatus.JDBC_ERROR;
 
 		} else {
 			
 			// Clearly, this could be rewritten more efficiently by using a PreparedStatement
 			// This is just an example, we are not after an award here ... :-)
         	Statement s;
+        	
 			try {
 				
 				s = jdbc.createStatement();
 				
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				
+				log.error("A SQLException occured while creating a JDBC Statement:\n"+e.getMessage());
+				log.error("Stack trace follows:\n");
 				e.printStackTrace();
-				return false;
+				
+				return PlinthosRequestStatus.JDBC_ERROR;
 			}
 
 	        String sql = buildSql(xml);
@@ -177,21 +181,27 @@ public class PlinthosServiceGateway extends HttpServlet {
 				s.executeUpdate(sql);
 				
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				
+				log.error("A SQLException occured while executing a JDBC update statement:\n"+e.getMessage());
+				log.error("Stack trace follows:\n");
 				e.printStackTrace();
-				return false;
+				
+				return PlinthosRequestStatus.JDBC_ERROR;
 			}
 	        
 	        try {
+	        	
 				s.close ();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+
+	        } catch (SQLException e) {
+				log.warn("A SQLException occured while closing a JDBC Statement:\n"+e.getMessage());
+				log.warn("Stack trace follows:\n");
 				e.printStackTrace();
 			}
 	        
 	        System.out.println("Submitted request on: "+System.currentTimeMillis());
 	        
-	        return true;
+			return PlinthosRequestStatus.SUBMITTED;
 		}
 	}
 	

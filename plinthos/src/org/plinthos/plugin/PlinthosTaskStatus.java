@@ -19,29 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.core.model;
+package org.plinthos.plugin;
 
 /**
- * PlinthosRequestStatus contains the different states of the requested
- * report.
  * 
  * @author <a href="mailto:babis.marmanis@gmail.com">Babis Marmanis</a>
- * @author <a href="mailto:kishorekirdat@gmail.com">Kishore Kirdat</a>
  * @version 1.0
  */
-public class PlinthosRequestStatus {
-	
-	// NORMAL 
-	public static final String CANCELED     = "CANCELED";
-	public static final String COMPLETED    = "COMPLETED";
-	public static final String EXPIRED      = "EXPIRED";
-	public static final String FAILED       = "FAILED";
-	public static final String IN_PROGRESS  = "RUNNING";
-	public static final String MISSING      = "MISSING";
-	public static final String REJECTED     = "REJECTED";
-	public static final String SUBMITTED    = "SUBMITTED";
-	
-	// ERRORS
-	public static final String JDBC_ERROR   = "JDBC ERROR";
-	public static final String UNKNOWN      = "UNKNOWN REQUEST TYPE";
+public class PlinthosTaskStatus {
+
+	public static final String COMPLETED = "TASK COMPLETED SUCCESSFULLY";
 }
