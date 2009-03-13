@@ -432,9 +432,14 @@ public class PriorityWeightedQueueImpl implements QueueService {
 			rs = PlinthosDBUtil.executeQuery ( connection, "SELECT * FROM request WHERE status='SUBMITTED'" );
 			
 			try {
-				
+				int reqId; 
 				while (rs.next()) {
-					reqs.add(rs.getInt(1));
+					reqId = rs.getInt(1);
+					if ( queuedRequests.contains(reqId) ) {
+						//Do nothing
+					} else {
+						reqs.add(reqId);
+					}
 				}
 				
 			} catch (SQLException sqlX) {
@@ -487,16 +492,17 @@ public class PriorityWeightedQueueImpl implements QueueService {
 	 * @return Object request object with highest weight.
 	 * @throws QueueEmptyException
 	 */
-	// Babis suggestion required
 	public synchronized Object dequeue() {
 
 		log.debug("Entering into dequeue method   " + System.currentTimeMillis());
 
-		//TODO: Do we even need this if-else branching? (!)
 		if (queuedRequests.isEmpty()) {
+			
 			log.debug("Queue is empty");
 			return null;
+			
 		} else {
+			
 			// ----- Implementing PWQA step 1 --------------------------
 			QueueRequest[] queuedRequestsArray = queuedRequests.toArray(new QueueRequest[0]);
 
@@ -526,22 +532,19 @@ public class PriorityWeightedQueueImpl implements QueueService {
 
 			// ----- Implementing PWQA step 4 --------------------------
 			// Process the expired requests
-			// TODO: This may need to be done asynchronously later. [Babis - July 10, 2003]
 			processExpiredRequests();
 
 			// ----- Implementing PWQA step 5 --------------------------
-			int dof = queuedRequestsArray.length;
-			if (dof < Constants.RK4_DEFAULT_INITIAL_DOF) {
-				dof = Constants.RK4_DEFAULT_INITIAL_DOF;
-			}
+			int dof = getDof();
 			
 			log.debug("Queued request length  " + queuedRequestsArray.length);
-			log.debug("BirthDeathRK4 contstructor paramaeters  dof = " + dof
-					+ " Constants.RK4_SCHEME_GRID_POINTS =" + Constants.RK4_SCHEME_GRID_POINTS
-					+ "   Constants.RK4_SCHEME_INTEGRATION_TIME = " + Constants.RK4_SCHEME_INTEGRATION_TIME);
+			log.debug("BirthDeathRK4 contstructor paramaeters\n dof = " + dof
+					+ "\n Constants.RK4_SCHEME_GRID_POINTS =" + Constants.RK4_SCHEME_GRID_POINTS
+					+ "\n Constants.RK4_SCHEME_INTEGRATION_TIME = " + Constants.RK4_SCHEME_INTEGRATION_TIME);
 
-			BirthDeathRK4 bdrk4 = new BirthDeathRK4(dof, Constants.RK4_SCHEME_GRID_POINTS,
-					Constants.RK4_SCHEME_INTEGRATION_TIME);
+			BirthDeathRK4 bdrk4 = new BirthDeathRK4(dof, 
+					                                Constants.RK4_SCHEME_GRID_POINTS,
+					                                Constants.RK4_SCHEME_INTEGRATION_TIME);
 
 			// Set the Initial Conditions (IC)
 			double[] ic = new double[dof];
@@ -550,24 +553,16 @@ public class PriorityWeightedQueueImpl implements QueueService {
 				
 				ic[i] = stateProbabilities[i];
 				
-				log.debug("stateProbabilities  ic[" + i + "] =" + stateProbabilities[i]);
+				//TODO make this a DEBUG statement
+				if (stateProbabilities[i] > 0) {
+					log.info("stateProbabilities  ic[" + i + "] =" + stateProbabilities[i]);
+				}
 			}
 
 			bdrk4.setInitialConditions(ic);
 
-			// DEBUG -- START
-//			double temp[] = lambda.toConstantArray(dof);
-//
-//			log.debug("Lambda values  ");
-//			for (int i = 0; i < temp.length; i++) {
-//				log.debug("Lambda[" + i + "] = " + temp[i]);
-//			}
-//			temp = mu.toConstantArray(dof);
-//			log.debug("mu values  ");
-//			for (int i = 0; i < temp.length; i++) {
-//				log.debug("mu[" + i + "] = " + temp[i]);
-//			}
-			// DEBUG -- END
+			// DEBUG
+			// printParams();
 
 			// Solve the system
 			ic = bdrk4.solve(lambda.toConstantArray(dof), mu.toConstantArray(dof));
@@ -581,7 +576,7 @@ public class PriorityWeightedQueueImpl implements QueueService {
 				stateProbabilities[i] = Constants.ZERO_DOUBLE;
 			}
 
-			// First rule
+			// First rule			
 			if (stateProbabilities[queueState] - stateWeightList[queueState] > Constants.QUEUE_WEIGHT_TOLERANCE) {
 				// DO SOMETHING ABOUT IT
 				// look at the documentation for gamma
@@ -604,10 +599,6 @@ public class PriorityWeightedQueueImpl implements QueueService {
 			queuedRequests.clear();
 			queuedRequests.addAll(Arrays.asList(queuedRequestsArray));
 			
-			// Remove the item from the
-			// queuedRequests.remove(queuedRequestsArray
-			// [queuedRequestsArray.length - 1]);
-			// -----------------------------------------------------------
 			log.debug("Leaving from dequeue method   " + System.currentTimeMillis());
 			
 			if (queuedRequests.isEmpty()) {
@@ -619,7 +610,37 @@ public class PriorityWeightedQueueImpl implements QueueService {
 		}
 	}
 	
-	/* (non-Javadoc)
+	@SuppressWarnings("unused")
+	private void printParams() {
+		
+		int dof = getDof();
+		double temp[] = lambda.toConstantArray(dof);
+
+		log.debug("Lambda values  ");
+		for (int i = 0; i < temp.length; i++) {
+			log.debug("Lambda[" + i + "] = " + temp[i]);
+		}
+		temp = mu.toConstantArray(dof);
+		log.debug("mu values  ");
+		for (int i = 0; i < temp.length; i++) {
+			log.debug("mu[" + i + "] = " + temp[i]);
+		}		
+	}
+
+	private int getDof() {
+		
+		int dof = queuedRequests.size();
+		
+		if (dof < Constants.RK4_DEFAULT_INITIAL_DOF) {
+			dof = Constants.RK4_DEFAULT_INITIAL_DOF;
+		}
+		
+		return dof;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.plinthos.core.queue.QueueService#removeRequest(int)
 	 */
 	public synchronized boolean removeRequest(int requestId) {
@@ -660,7 +681,7 @@ public class PriorityWeightedQueueImpl implements QueueService {
 		
 		if (queuedRequests.contains(qR)) {
 			
-			// log.warn("Request already exists in the queue  -->  ID = "+qR.getRequestId());
+			log.debug("Request already exists in the queue  -->  ID = "+qR.getRequestId());
 		
 		} else {
 
