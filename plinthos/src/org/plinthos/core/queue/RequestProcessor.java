@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.plinthos.core.model.PlinthosRequest;
-import org.plinthos.core.model.PlinthosRequestStatus;
 import org.plinthos.core.process.ProcessUtil;
 import org.plinthos.core.process.RequestManager;
 import org.plinthos.queue.Processor;
@@ -121,25 +120,18 @@ public class RequestProcessor extends Thread implements Processor {
 		log.debug("Entering into getNextRequest method");
 
 		QueueRequest q = null;
-//		try {
-//            synchronized ( requestQueue ) {            	
+		synchronized ( requestQueue ) {            	
 				
-				if (requestQueue.isEmpty()) {
+			if (requestQueue.isEmpty()) {
 	
-					log.info("Queue is empty, waiting for request");
-	
-//					requestQueue.wait(5000);
-	
-				} else {
-		            log.debug ( "Leaving from getNextRequest method" );
-		            q = (QueueRequest) requestQueue.dequeue();
-				}
-//			}                        
-//		} catch (InterruptedException ex) {
-//			log.error("Interrupted Exception in getNextRequest method", ex);
-//			throw ex;
-//		}
-		
+				log.info("Queue is empty, waiting for request");
+				
+			} else {
+				log.debug ( "Leaving from getNextRequest method" );
+				
+				q = (QueueRequest) requestQueue.dequeue();		            
+			}
+		}                        
 		return q;
 	}
 
@@ -165,20 +157,13 @@ public class RequestProcessor extends Thread implements Processor {
 
 		log.info("Assigning the request ...");
 
-		// Remove the request from queued requests and add it to
-		// processing requests.
+		// Remove the request from queued requests and add it to processing requests.
 		if (requestQueue.updateInProgressRequests(queueRequest)) {
 
-			RequestManager requestManager = ProcessUtil
-					.getRequestManager();
+			RequestManager requestManager = ProcessUtil.getRequestManager();
 
-			PlinthosRequest request = requestManager
-					.getRequest(queueRequest.getRequestId());
+			PlinthosRequest request = requestManager.getRequest(queueRequest.getRequestId());
 
-			requestManager.updateRequestStatus(queueRequest
-					.getRequestId(), PlinthosRequestStatus.IN_PROGRESS);
-
-			// Command task = new DefaultCommandImpl();
 			Command task = CommandFactory.getCommand(request.getTask());
 
 			task.setRequest(queueRequest);
