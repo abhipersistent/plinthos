@@ -13,7 +13,7 @@
     <servlet-name>PlinthosServiceGateway</servlet-name>
     <display-name>This is a basic PlinthOS service gateway </display-name>
     <description>A rudimentary implementation of a proxy for a PlinthOS service based on the simplest XML-RPC</description>
-    <servlet-class>org.plinthos.plugin.PlinthosServiceGateway</servlet-class>
+    <servlet-class>org.plinthos.service.PlinthosServiceGateway</servlet-class>
   </servlet>
 
   <servlet-mapping>
