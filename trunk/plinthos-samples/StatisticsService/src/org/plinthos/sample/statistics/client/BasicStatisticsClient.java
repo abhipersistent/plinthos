@@ -71,7 +71,7 @@ public class BasicStatisticsClient {
 		
 		        String userName = "root";
 		        String password = "";
-		        String url = "jdbc:mysql://localhost:3306/plinthos";
+		        String url = "jdbc:mysql://127.0.0.1:3306/plinthos";
 		        Class.forName ("com.mysql.jdbc.Driver").newInstance();
 		        jdbc = DriverManager.getConnection (url, userName, password);
 		        System.out.println ("Database connection established");
@@ -87,6 +87,7 @@ public class BasicStatisticsClient {
 			        
 			        System.out.println("Submitted:\n"+requestXml);
 		        }
+		        
 			} else if (args[0].equalsIgnoreCase("http")) {
 	
 		        for (int i=0; i<loop;i++) {
@@ -162,7 +163,7 @@ public class BasicStatisticsClient {
 		//Build the instance of BasicStatisticsRequest
 		BasicStatisticsRequest request = new BasicStatisticsRequest("test data");
 		
-		double[] values = new double[10];
+		double[] values = new double[1000];
 		
 		Random rand = new Random();
 		for (int i=0; i < 10; i++) {

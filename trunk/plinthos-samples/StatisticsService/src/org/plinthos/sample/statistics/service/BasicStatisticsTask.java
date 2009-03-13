@@ -21,8 +21,13 @@
  */
 package org.plinthos.sample.statistics.service;
 
+import no.uib.cipr.matrix.DenseVector;
+import no.uib.cipr.matrix.Matrices;
+import no.uib.cipr.matrix.Matrix;
+
 import org.apache.commons.math.stat.StatUtils;
 import org.plinthos.plugin.PlinthosTask;
+import org.plinthos.plugin.PlinthosTaskStatus;
 import org.plinthos.sample.statistics.data.BasicStatisticsRequest;
 
 import com.thoughtworks.xstream.XStream;
@@ -51,11 +56,11 @@ public class BasicStatisticsTask extends PlinthosTask {
 		System.out.println("Basic Statistics for request entitled: "+ request.getLabel());
 		System.out.println(request.toString());
 		
-		return "COMPLETED";
+		return PlinthosTaskStatus.COMPLETED;
 	}
 
 	/**
-	 * This method is responsible for getting the sum of two numbers
+	 * This method is doing some numerical work. 
 	 * 
 	 * @param request
 	 * @return
@@ -63,12 +68,24 @@ public class BasicStatisticsTask extends PlinthosTask {
 	private void evaluateStatistics(BasicStatisticsRequest request) {
 		
 		double[] x = request.getValues();
+
+		Matrix m = Matrices.random(x.length,x.length);
 		
-		request.setMax(StatUtils.max(x));
-		request.setMin(StatUtils.min(x));
-		request.setSum(StatUtils.sum(x));
-		request.setAverage(StatUtils.mean(x));
-		request.setGeometricMean(StatUtils.geometricMean(x));
-		request.setVariance(StatUtils.variance(x));		
+		DenseVector _x = new DenseVector(x);
+		DenseVector _y = new DenseVector(x.length);
+		
+		m.mult(_x, _y);
+				
+		double[] y = _y.getData();
+		request.setMax(StatUtils.max(y));
+		request.setMin(StatUtils.min(y));
+		request.setSum(StatUtils.sum(y));
+		request.setAverage(StatUtils.mean(y));
+		request.setGeometricMean(StatUtils.geometricMean(y));
+		request.setVariance(StatUtils.variance(y));		
+	}
+	
+	public void cancelRequest() {
+		//TODO Cancel the PlinthosTask
 	}
 }
