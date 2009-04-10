@@ -1,0 +1,148 @@
+_________________________________________________________________________________________
+
+   S E T U P    I N S T R U C T I O N S
+_________________________________________________________________________________________
+
+Overview:
+
+1. Obtain and unzip/untar the PlinthOS distribution; the filename is POS.zip 
+   If you unzip it in C:\ (on Windows) then you should be able to see the directory 
+   structure shown in the README-dir-map file.
+       
+2. Obtain and install JBoss 4.2.3 (or later). Follow the detailed instructions that 
+   are outlined below for JBoss.
+
+3. Obtain and install a MySQL 5.x database, if you don't have one. Follow the detailed 
+   instructions that are outlined below.
+
+4. Build and deploy PlinthOS (see detailed instructions below)
+
+5. Build and deploy PlinthOS services (see detailed instructions below)
+
+
+_________________________________________________________________________________________
+
+   J B O S S    A P P L I C A T I O N    S E R V E R
+_________________________________________________________________________________________
+
+1. You can obtain the JBoss Application Server from the following URL:
+
+   http://jboss.org/jbossas/downloads/
+
+   
+2. Set the environment variable JBOSS_HOME, so that it points to
+   the installation directory of JBoss. For example, on a Windows
+   machine it would be something like 
+
+   C:\Servers\jboss-4.2.3.GA 
+   
+   or simply 
+
+   C:\jboss-4.2.3.GA
+   
+3. Go into plinthos-samples\StatisticsService\lib and copy the following JAR files:
+
+   mysql-connector-java-5.1.7-bin.jar
+
+      This is the MySQL JDBC driver, without it our code cannot read the data from MySQL. 
+
+   xstream-1.3.1.jar
+   xpp3_min-1.1.4c.jar
+   
+      These two JAR files are needed for our sample service. XStream is a small library
+      that allows you to marshall/unmarshall Java POJOs to/from XML. XPP3 is a dependency
+      of XStream for the empty constructor, you can also use a constructor with a 
+      DOMDriver and drop the dependency on XPP3.  
+      
+_________________________________________________________________________________________
+
+   M y S Q L    D A T A B A S E    S E R V E R
+_________________________________________________________________________________________
+
+1. You can obtain the MySQL database from the following URL:
+
+   http://dev.mysql.com/downloads/mysql/5.1.html
+ 
+
+2. You can obtain the MySQL JDBS driver from the following URL:
+
+   http://dev.mysql.com/downloads/connector/j/5.1.html
+
+3. Unzip/Untar and Copy the file
+ 
+   mysql-connector-java-5.1.7-bin.jar 
+   
+   in the following directory:
+
+   JBOSS_HOME\common\lib 
+
+   This ensures that JBoss will be able to create the MySQL 
+   JDBC connection pool that we defined in mysql-ds.xml.
+
+4. Create the MySQL database by executing (on Windows)
+
+   mysql -uroot < %PLINTHOS_ROOT%\plinthos\deploy\mysql-setup\create_db.sql
+     
+   where %PLINTHOS_ROOT% refers to the directory in which you unzipped the distribution.
+   
+   NOTE: 
+   You can obviously refine this step by creating a plinthos user account in MySQL to
+   handle all the PlinthOS related work and DB access. Have a look as to how this is
+   done (for MySQL) by reading the userSetup.sql file, in the deploy\mysql-setup directory.
+   We will not cover here this aspect of setting up the MySQL environment. 
+
+5. Some useful queries:
+
+
+     (a) select MIN(COMPLETION_TIME - SUBMISSION_TIME), count(*) REQUEST_TYPE from request where STATUS='COMPLETED';
+     
+     (b) select MAX(COMPLETION_TIME - SUBMISSION_TIME), count(*) REQUEST_TYPE from request where STATUS='COMPLETED';
+     
+     (c) select AVG(COMPLETION_TIME - SUBMISSION_TIME), count(*) REQUEST_TYPE from request where STATUS='COMPLETED';
+
+     (d) select ID, USER_ID, STATUS, PRIORITY, SUBMISSION_TIME, (COMPLETION_TIME - SUBMISSION_TIME) as DT, REQUEST_TYPE from request where STATUS='COMPLETED' ORDER BY SUBMISSION_TIME, DT;
+     
+     (e) select ID, USER_ID, STATUS, PRIORITY, SUBMISSION_TIME, COMPLETION_TIME, (COMPLETION_TIME - SUBMISSION_TIME) as DT, REQUEST_TYPE from request where STATUS='COMPLETED' ORDER BY COMPLETION_TIME, DT;
+   
+   Clearly, you can execute (a), (b), and (c) for all different status entries (e.g. 'SUBMITTED')
+  
+_________________________________________________________________________________________
+
+   B U I L D    &    D E P L O Y    P L I N T H O S
+_________________________________________________________________________________________
+
+1. Open a command prompt and go to:
+
+      %PLINTHOS_ROOT%\plinthos\build
+
+   execute the default ant command. This will build the PlinthOS.ear file into:
+   
+      %PLINTHOS_ROOT%\plinthos\deploy\dist\PlinthOS.ear
+   
+   NOTE:   
+        If you want the Ant task to deploy the EAR file into the JBoss deploy 
+        directory then you MUST have the JBOSS_HOME environment variable defined. 
+        Otherwise, just copy the EAR file manually.
+
+        
+_________________________________________________________________________________________
+
+   B U I L D    &    D E P L O Y    P L I N T H O S    S E R V I C E S
+_________________________________________________________________________________________
+
+1. Change directory or open a second command prompt and go to: 
+
+      %PLINTHOS_ROOT%\plinthos-samples\StatisticsService\build
+      
+   execute the default ant command. This will build our example of a PlinthOS service.
+   You can find the JAR file "sample-stats-service.jar" into the following directory:
+   
+      %PLINTHOS_ROOT%\plinthos-samples\StatisticsService\build\dist
+      
+      
+_______________________                                ___________________
+                       \______________________________/                   \______________ 
+  Happy Multi-Core
+                                                        The PlinthOS Team   
+     CRUNCHING          ______________________________                     ______________
+_______________________/                              \___________________/              
