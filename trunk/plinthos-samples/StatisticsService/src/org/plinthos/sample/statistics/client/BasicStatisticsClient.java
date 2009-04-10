@@ -32,8 +32,9 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.Random;
 
-import org.plinthos.plugin.PlinthosXmlRequest;
 import org.plinthos.sample.statistics.data.BasicStatisticsRequest;
+import org.plinthos.shared.gateway.commands.request.SubmitRequest;
+import org.plinthos.shared.gateway.mapping.CommandXmlMapping;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -70,8 +71,8 @@ public class BasicStatisticsClient {
 				Connection jdbc = null;
 		
 		        String userName = "root";
-		        String password = "";
-		        String url = "jdbc:mysql://127.0.0.1:3306/plinthos";
+		        String password = "root";
+		        String url = "jdbc:mysql://localhost:3306/plinthos";
 		        Class.forName ("com.mysql.jdbc.Driver").newInstance();
 		        jdbc = DriverManager.getConnection (url, userName, password);
 		        System.out.println ("Database connection established");
@@ -87,24 +88,24 @@ public class BasicStatisticsClient {
 			        
 			        System.out.println("Submitted:\n"+requestXml);
 		        }
-		        
 			} else if (args[0].equalsIgnoreCase("http")) {
 	
 		        for (int i=0; i<loop;i++) {
 					// Create the XML request
-					PlinthosXmlRequest xml = new PlinthosXmlRequest();
+					SubmitRequest xml = new SubmitRequest();
 					xml.setUserId("babis");
-					xml.setRequestXml(getRequest());
+					xml.setRequestData(getRequest());
 					xml.setPriority(10);
+					xml.setCorrelationId("CLIENT-ID-1");
 					xml.setType("Basic-Statistics");
 					
-					XStream xstream = new XStream();
-					
-					String xmlData = xstream.toXML(xml);
+					CommandXmlMapping xmlMapping = new CommandXmlMapping(); 
+					String xmlData = xmlMapping.toXML(xml);
 					
 					// Post it
-				    URL url = new URL("http://localhost:8080/plinthos/service/PlinthosServiceGateway");
-		
+				    //URL url = new URL("http://localhost:8080/plinthos/service/PlinthosServiceGateway");
+					URL url = new URL("http://localhost:8080/plinthos/gateway");
+					
 				    java.net.HttpURLConnection con = (HttpURLConnection) url.openConnection();
 		
 				    // Sets the request method to POST, and enable to send data
@@ -161,9 +162,9 @@ public class BasicStatisticsClient {
 	private static String getRequest() throws Exception {
 
 		//Build the instance of BasicStatisticsRequest
-		BasicStatisticsRequest request = new BasicStatisticsRequest("test data");
+		BasicStatisticsRequest request = new BasicStatisticsRequest("test data {&gt;}");
 		
-		double[] values = new double[1000];
+		double[] values = new double[10];
 		
 		Random rand = new Random();
 		for (int i=0; i < 10; i++) {

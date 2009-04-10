@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Sample Statistics Service" default="build-jar" basedir=".">
+<project name="Sample Statistics Service" default="deploy" basedir=".">
   <description>
       _______________________________________________________________________
 
@@ -37,26 +37,37 @@
       
   </description>
 
+  <property file="../../../build/build-common.properties"/>
+
   <property name="app.root"  value="./.." />
 
   <property name="app.build" value="${app.root}/build" />
   <property name="app.docs"  value="${app.root}/docs" />
   <property name="app.lib"   value="${app.root}/lib" />
   <property name="app.src"   value="${app.root}/src" />
+  <property name="app.config"   value="${app.root}/config" />
 
   
   <property name="build.dist"      value="${app.build}/dist" />
   <property name="build.classes"   value="${app.build}/classes" />
   <property name="eclipse.classes" value="${app.build}/bytecode" />
+  <property name="build.jars"      value="${app.build}/jars" />
   
   <property name="apidoc.dir" value="${app.docs}/javadoc" />
 
-  <property name="plinthos.lib"  value="c:/Servers/jboss-4.2.3.GA/plinthos-lib" />
   <property name="app.exec.file" value="org.plinthos.sample.statistics.service.BasicStatisticsTask" />
+  <property name="app.jar"       value="statistics-service-client.jar"/>
+  <property name="plugin.jar"    value="statistics-service-plinthos-plugin.jar"/>  
+  
+  <property name="app.name" value="StatisticsService"/>
+<!--
+  <property name="deploy.plugin.home" value="c:/Servers/plinthos/server/plinthos-lib"/>
+  <property name="deploy.client.home" value="c:/Servers/plinthos/client/StatisticsService"/>
+  <property name="plinthos.shared.jar" value="c:/Servers/plinthos/"/>
+-->  
   
   <!-- PREAMPLE -->
   <path id="compile.classpath">
-    <pathelement location="${env.CLASSPATH}" />
     <fileset dir="${app.lib}">
       <include name="**/*.jar" />
     </fileset>
@@ -72,10 +83,15 @@
   <target name="make-build-dirs">
     <mkdir dir="${build.dist}" />
     <mkdir dir="${build.classes}" />
+    <mkdir dir="${build.jars}"/>
   </target>
 
   <!-- CREATE THE BYTECODE -->
   <target name="src-compile" depends="init,make-build-dirs">
+    
+    <copy file="${deploy.plinthos.server-shared.home}/${plinthos.sharedjar}"
+          todir="${app.lib}"/>
+
     <javac srcdir="${app.src}" 
            destdir="${build.classes}" 
            deprecation="off" 
@@ -88,35 +104,88 @@
   <!-- BUILD THE JAR FILE -->
   <target name="build-jar" depends="src-compile">
     <jar basedir="${build.classes}" 
-         destfile="${build.dist}/plinthos-stats-service.jar" 
+         destfile="${build.jars}/${app.jar}" 
          includes="**/**.class">			
     </jar>
+    
+    <jar basedir="${build.classes}" 
+         destfile="${build.jars}/${plugin.jar}" 
+         includes="**/**.class">			
+    </jar>
+    
   </target>
 
-  <!-- DEPLOY THE SERVICE AND ITS DEPENDENCIES -->
-  <target name="deploy" depends="build-jar">
-  
-    <!-- If the deployment directory does not exist, create it -->
-    <mkdir dir="${plinthos.lib}/${app.exec.file}" />
+  <target name="build-plugin" depends="build-jar">
+
+    <mkdir dir="${build.dist}/${app.exec.file}" />
     
     <!-- Copy the JAR file of the service -->
-    <copy file="${build.dist}/plinthos-stats-service.jar"
-          todir="${plinthos.lib}/${app.exec.file}"/>
+    <copy file="${build.jars}/${plugin.jar}"
+          todir="${build.dist}/${app.exec.file}"/>
+
           
     <!-- and all its dependencies -->
-    <copy todir="${plinthos.lib}/${app.exec.file}">      
+    <copy todir="${build.dist}/${app.exec.file}">      
       <fileset dir="${app.lib}">
         <include name="**/*.jar" />
+        <exclude name="${plinthos.sharedjar}"/>
       </fileset>
     </copy>
   </target>
+
+  <target name="build-client" depends="build-jar">
+    <!-- If the deployment directory does not exist, create it -->
+    <mkdir dir="${build.dist}/${app.name}" />
+    
+     <copy overwrite="true" todir="${build.dist}/${app.name}">
+     	  <fileset dir="${app.config}">
+     	  	<include name="**/*"/>
+     	  </fileset>
+     </copy>
+     <copy overwrite="true" todir="${build.dist}/${app.name}/lib">
+     	  <fileset dir="${app.lib}">
+     	  	<include name="**/*"/>
+     	  </fileset>
+     </copy>
+     <copy file="${build.jars}/${app.jar}"
+          todir="${build.dist}/${app.name}"/>
+  </target>
+
+  <target name="build" depends="build-jar,build-plugin,build-client"/>
+
+  <!-- DEPLOY THE SERVICE AND ITS DEPENDENCIES -->
+  <target name="deploy" depends="build">
   
-  
+    <mkdir dir="${deploy.plinthos.server-plugins.home}/${app.exec.file}" />
+
+    <copy todir="${deploy.plinthos.server-plugins.home}/${app.exec.file}">      
+      <fileset dir="${build.dist}/${app.exec.file}">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+
+    <!-- deploying client app that submits requests to plinthos -->
+    <mkdir dir="${deploy.plinthos.samples.home}/${app.name}"/>
+    <copy overwrite="true" todir="${deploy.plinthos.samples.home}/${app.name}">
+     	  <fileset dir="${build.dist}/${app.name}">
+     	  	<include name="**/*"/>
+     	  </fileset>
+    </copy>
+    
+  </target>
+
+  <target name="clean-deployed" depends="init">
+    <delete dir="${deploy.plinthos.samples.home}/${app.name}"/>  
+    <delete dir="${deploy.plinthos.server-plugins.home}/${app.exec.file}"/>  
+  </target>
+
   <!-- CLEAN UP -->
   <target name="clean" description="clean up" >
     <delete dir="${build.classes}"/>
     <delete dir="${build.dist}"/>
   </target>
+
+  <target name="clean-all" depends="clean,clean-deployed"/>
 
   <!-- CLEAN UP EVERYTHING -->
   <target name="tidy"

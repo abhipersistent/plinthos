@@ -21,14 +21,10 @@
  */
 package org.plinthos.sample.statistics.service;
 
-import no.uib.cipr.matrix.DenseVector;
-import no.uib.cipr.matrix.Matrices;
-import no.uib.cipr.matrix.Matrix;
-
 import org.apache.commons.math.stat.StatUtils;
-import org.plinthos.plugin.PlinthosTask;
-import org.plinthos.plugin.PlinthosTaskStatus;
 import org.plinthos.sample.statistics.data.BasicStatisticsRequest;
+import org.plinthos.shared.plugin.PlinthosTask;
+import org.plinthos.shared.plugin.PlinthosTaskStatus;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -47,20 +43,28 @@ public class BasicStatisticsTask extends PlinthosTask {
 	 */
 	public String execute(String requestId, String xmlData) {
 		
-		XStream xstream = new XStream();
+		ctx.sendProgressMessage("message from task");
 		
+		XStream xstream = new XStream();
+		xstream.setClassLoader(this.getClass().getClassLoader());
 		BasicStatisticsRequest request = (BasicStatisticsRequest) xstream.fromXML(xmlData);
 		
 		evaluateStatistics(request);
 		
 		System.out.println("Basic Statistics for request entitled: "+ request.getLabel());
 		System.out.println(request.toString());
+
+		String taskStatus = PlinthosTaskStatus.COMPLETED;
+		if( ctx.isTaskCancelled() ) {
+			System.out.println("Task detected that it was cancelled");
+			taskStatus = PlinthosTaskStatus.CANCELLED;
+		}
 		
-		return PlinthosTaskStatus.COMPLETED;
+		return taskStatus;
 	}
 
 	/**
-	 * This method is doing some numerical work. 
+	 * This method is responsible for getting the sum of two numbers
 	 * 
 	 * @param request
 	 * @return
@@ -68,24 +72,12 @@ public class BasicStatisticsTask extends PlinthosTask {
 	private void evaluateStatistics(BasicStatisticsRequest request) {
 		
 		double[] x = request.getValues();
-
-		Matrix m = Matrices.random(x.length,x.length);
 		
-		DenseVector _x = new DenseVector(x);
-		DenseVector _y = new DenseVector(x.length);
-		
-		m.mult(_x, _y);
-				
-		double[] y = _y.getData();
-		request.setMax(StatUtils.max(y));
-		request.setMin(StatUtils.min(y));
-		request.setSum(StatUtils.sum(y));
-		request.setAverage(StatUtils.mean(y));
-		request.setGeometricMean(StatUtils.geometricMean(y));
-		request.setVariance(StatUtils.variance(y));		
-	}
-	
-	public void cancelRequest() {
-		//TODO Cancel the PlinthosTask
+		request.setMax(StatUtils.max(x));
+		request.setMin(StatUtils.min(x));
+		request.setSum(StatUtils.sum(x));
+		request.setAverage(StatUtils.mean(x));
+		request.setGeometricMean(StatUtils.geometricMean(x));
+		request.setVariance(StatUtils.variance(x));		
 	}
 }
