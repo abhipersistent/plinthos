@@ -21,6 +21,7 @@
  */
 package org.plinthos.sample.statistics.data;
 
+
 /**
  * This class encapsulates the information that will be transferred between
  * the client and the PlinthOS service.
@@ -41,6 +42,10 @@ public class BasicStatisticsRequest {
 	private double sum;
 	private double variance;
 	private double average;
+	
+	public BasicStatisticsRequest() {
+		
+	}
 	
 	/**
 	 * @return the geometricMean

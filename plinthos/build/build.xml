@@ -41,11 +41,12 @@
   		Configuration variables and setup tasks
       ========================================================================
   -->
-  <property environment="env" />
-  <property name="jboss.home" value="${env.JBOSS_HOME}" />
-  <property name="java.home" value="${env.JAVA_HOME}" />
-  <property name="j2ee.home" value="${env.J2EE_HOME}" />
 
+  <property environment="env" />
+
+  <property name="java.home" value="${env.JAVA_HOME}" />
+
+  <property file="../../build/build-common.properties"/>
   <property file="build.properties" />
 
   <target name="init">
@@ -58,6 +59,8 @@
 
   <!-- This target provides the information that is necessary for building -->
   <target name="info">
+    <echo message="pos.root=${pos.root}"/>
+    <echo message="pos.src=${pos.src}"/>
     <echo>
           _______________________________________________________________________
              
@@ -68,8 +71,6 @@
 	      the following properties:
 
 	          -->  JAVA_HOME
-	          -->  J2EE_HOME
-	          -->  JBOSS_HOME
 
 	      Please, make sure that these environment properties are set in your system.
 
@@ -97,6 +98,8 @@ _______________________/                              \___________________/
   <target name="make-build-dirs">
     <mkdir dir="${build.dist}" />
     <mkdir dir="${build.classes}" />
+    <mkdir dir="${build.jars}" />    
+    <mkdir dir="${build.config}" />        
   </target>
 
   <!-- CLEAN COMPILE -->
@@ -117,74 +120,63 @@ _______________________/                              \___________________/
       </classpath>
     </javac>
     <property name="forceOverwrite" value="no" />
+    
+    <copy todir="${build.classes}">
+      <fileset dir="${pos.src}">
+        <include name="**/*.properties" />
+        <include name="**/*.xml" />
+      </fileset>
+    </copy>
   </target>
 
   <!-- BUILD THE PlinthOS (server) JAR FILE -->
-  <target name="plinthos-jar" depends="compile">
-
-  <!-- Ensure that the meta-inf is clean -->
-    <delete dir="${classes.metainf}" />
-    <mkdir dir="${classes.metainf}" />
-
-    <!-- Copy the configuration files -->
-    <copy file="${pos.src.metainf}/persistence.xml" 
-          todir="${classes.metainf}" />
-
-    <copy file="${pos.src}/org/plinthos/resbundles/ErrorMessages.properties" 
-	  todir="${build.classes}/org/plinthos/resbundles/" />
+  <target name="build-server" depends="compile">
   	
     <!-- Build the server JAR -->
-    <jar jarfile="${build.dist}/${plinthos.jarfile}" manifest="${pos.src.metainf}/MANIFEST.MF">
+    <jar jarfile="${build.jars}/${plinthos.jarfile}">
       <fileset dir="${build.classes}">
         <include name="**/*.class" />
         <include name="**/*.properties" />
-        <include name="META-INF/persistence.xml" />
+        <include name="**/*.xml" />
       </fileset>
     </jar>
+    
+    <mkdir dir="${build.dist}/server"/>    
+
+     <copy overwrite="true" todir="${build.dist}/server">
+     	  <fileset dir="${pos.scripts}">
+     	  	<include name="*.bat"/>
+     	  </fileset>
+     </copy>
+    
+     <copy overwrite="true" todir="${build.dist}/server/config">
+     	  <fileset dir="${pos.config}">
+     	  	<include name="**/*"/>
+     	  </fileset>
+     </copy>
+
+     <copy overwrite="true" todir="${build.dist}/server/lib">
+     	  <fileset dir="${pos.lib}">
+     	  	<include name="**/*"/>
+     	  </fileset>
+     </copy>
+
+     <copy file="${build.jars}/${plinthos.jarfile}" todir="${build.dist}/server" />
   </target>
 
-  <!-- BUILD THE PlinthOS (client) JAR FILE -->
-  <target name="plinthos-client-jar" depends="compile">
-    <jar jarfile="${build.dist}/${plinthos.clientjar}">
+  <!-- BUILD THE PlinthOS (shared) JAR FILE -->
+  <target name="build-shared" depends="compile">
+    <jar jarfile="${build.jars}/${plinthos.sharedjar}">
       <fileset dir="${build.classes}">
-        <include name="org/plinthos/plugin/*.class" />
-        <include name="org/plinthos/service/*.class" />
+        <include name="org/plinthos/shared/**/*.class" />
       </fileset>
     </jar>
+
+    <mkdir dir="${build.dist}/server-shared"/>
+    <copy file="${build.jars}/${plinthos.sharedjar}" todir="${build.dist}/server-shared" />
   </target>
 
-  <!-- BUILD THE PlinthOS WAR FILE -->
-  <target name="plinthos-war" depends="plinthos-jar,plinthos-client-jar">
-    <war destfile="${build.dist}/${plinthos.warfile}" webxml="${pos.web.webinf}/web.xml">
-      <fileset dir="${pos.web}">
-        <include name="**/*.html" />
-      </fileset>
-      <lib dir="${pos.web.webinf}/lib" />
-      <classes dir="${build.classes}" includes="org/plinthos/core/*.class,org/plinthos/core/process/*.class" />
-      <classes file="${pos.web.webinf}/services.xml" />
-    </war>
-  </target>
-
-  <!-- BUILD THE PlinthOS EAR FILE -->
-  <target name="plinthos-ear" depends="plinthos-war">
-
-    <delete file="${build.dist}/${plinthos.earfile}" />
-    <delete dir="${classes.metainf}" />
-    <mkdir dir="${classes.metainf}" />
-
-    <ear destfile="${build.dist}/${plinthos.earfile}" 
-         appxml="${pos.src.metainf}/application.xml"
-         update="true"
-         duplicate="fail"
-         excludesfile="${build.dist}/${plinthos.clientjar}"
-         manifest="${pos.src.metainf}/MANIFEST.MF" >
-	
-      <fileset dir="${build.dist}" includes="PlinthOS.jar,PlinthOS.war" />
-      <fileset dir="${build.classes}">
-       <include name="META-INF/*.xml" />
-      </fileset>
-    </ear>
-  </target>
+  <target name="build" depends="build-server,build-shared"/>
 
   <!--
       ========================================================================
@@ -192,22 +184,32 @@ _______________________/                              \___________________/
       ========================================================================
   -->
 
-  <!-- DEPLOY PlinthOS on the JBOSS server -->
-  <target name="deploy" depends="plinthos-ear">
-    <copy file="${build.dist}/${plinthos.earfile}" todir="${jboss.deploy}" />
+  <!-- DEPLOY PlinthOS  -->
+  <target name="deploy" depends="build">
+  
+    <mkdir dir="${deploy.plinthos.server.home}"/>
+    <mkdir dir="${deploy.plinthos.server-plugins.home}"/>
+    <mkdir dir="${deploy.plinthos.server-shared.home}"/>
+
+
+     <copy overwrite="true" todir="${deploy.plinthos.server.home}">
+     	  <fileset dir="${build.dist}/server">
+     	  	<include name="**/*"/>
+     	  </fileset>
+     </copy>
+
+
+     <copy overwrite="true" todir="${deploy.plinthos.server-shared.home}">
+     	  <fileset dir="${build.dist}/server-shared">
+     	  	<include name="**/*"/>
+     	  </fileset>
+     </copy>
   </target>
 
-  <target name="plinthos-temp-deploy" depends="plinthos-jar">
-    <copy file="${build.dist}/${plinthos.jarfile}" overwrite="true" todir="${jboss.deploy}" />
-  </target>
-	
-  <!-- This target copies all the necessary configuration files for a plinthos installation -->
-  <!-- TODO: rename this to something more appropriate -->
-  <target name="copy-config">
-    <mkdir dir="${plinthos-conf-dir}" />
-    <copy file="${mysql-driver-config}" overwrite="true" todir="${jboss.deploy}" />
-    <copy file="${mysql-driver-file}" overwrite="true" todir="${jboss.deploy.lib}" />
-    <copy file="${jboss-bin-run}" overwrite="true" todir="${jboss.bin}" />
+  <target name="clean-server" depends="init">
+  	 <delete dir="${deploy.plinthos.server.home}"/>
+  	 <delete dir="${deploy.plinthos.server-shared.home}"/>
+  	 <delete dir="${deploy.plinthos.server-plugins.home}"/>
   </target>
 
   <!--
@@ -218,9 +220,14 @@ _______________________/                              \___________________/
 
   <!-- CLEAN UP -->
   <target name="clean" description="clean up" >
+    <delete dir="${build.jars}"/>  
+    <delete dir="${build.config}"/>      
     <delete dir="${build.classes}"/>
     <delete dir="${build.dist}"/>
   </target>
+
+  <target name="clean-all" depends="clean,clean-server"/>
+  
 
   <!-- CLEAN UP EVERYTHING -->
   <target name="tidy"
@@ -253,19 +260,6 @@ _______________________/                              \___________________/
                use="true" />
     </target>
 
-    <!-- RUN THE BIRTH-DEATH SOLVER (testing) -->
-  <target name="runRK4" description="Run the fourth order Runge-Kutta solver of the Birth/Death model.">
-    <java classname="org.plinthos.queue.routing.BirthDeathRK4" fork="yes" failonerror="yes">
-      <classpath>
-        <pathelement path="${build.classes}" />
-        <pathelement path="${compile.classpath}" />
-        <pathelement path="${runtime.classpath}" />
-      </classpath>
-      <arg value="32" />
-      <arg value="5000" />
-      <arg value="10" />
-    </java>
-  </target>
 
 </project>
 
