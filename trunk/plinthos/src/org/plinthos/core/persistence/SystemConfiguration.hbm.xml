@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.plinthos.core.model.SystemConfigurationProperty" table="system_configuration">
+        <!--  <id name="id" column="ID"/> -->
+        <!--  <timestamp name="lastChanged" column="LAST_CHANGED" />  --><!--  generated="never"  -->
+        <id name="name" column="NAME" length="128"/>
+        <property name="value" column="VALUE" length="512"/>
+        <property name="lastChanged" column="LAST_CHANGED" type="timestamp"/>        
+        <property name="creationDate" column="CREATION_DATE" type="timestamp"/>
+    </class>
+</hibernate-mapping>

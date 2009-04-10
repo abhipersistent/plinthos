@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.plinthos.core.model.PlinthosRequest" table="report_request">
+        <id name="id" type="int" column="ID" unsaved-value="-1">
+            <generator class="native"/>
+        </id>
+        <version name="version" access="field" column="OBJ_VERSION" unsaved-value="negative"/>
+        <property name="correlationId" column="CORRELATION_ID" length="512"/>        
+        <property name="userId" column="USER_ID"/>
+        <property name="requestParams" column="TEMPLATE_PARAMS" length="16777215"/>
+        <property name="status" column="STATUS" />
+        <property name="priority" column="PRIORITY"/>
+        <property name="expiration" type="timestamp" column="EXPIRATION"/>
+        <property name="submissionTime" type="timestamp" column="SUBMISSION_TIME"/>
+        <property name="completionTime" type="timestamp" column="COMPLETION_TIME"/>
+        <property name="userEmail" column="USER_EMAIL" length="255"/>
+		<property name="cancelRequested" column="CANCEL_REQUESTED"/>
+		<property name="progressMessage" column="PROGRESS_MESSAGE" length="1024"/>
+		<property name="requestResults"  column="REQUEST_RESULTS" length="16777215"/>        
+        <property name="statusMessage" column="STATUS_MESSAGE" length="1024"/>
+        <many-to-one name="taskInfo"
+        		class="org.plinthos.core.model.RegisteredTask"
+        		column="REQUEST_TYPE" lazy="false"/>
+    </class>
+</hibernate-mapping>
