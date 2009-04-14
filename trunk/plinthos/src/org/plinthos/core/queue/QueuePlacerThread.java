@@ -21,11 +21,11 @@
  */
 package org.plinthos.core.queue;
 
-//Log4J API
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.plinthos.core.model.PlinthosRequest;
+import org.plinthos.core.model.PlinthosRequestStatus;
 import org.plinthos.core.service.RequestManager;
 import org.plinthos.core.service.ServiceFactory;
 
@@ -39,7 +39,7 @@ public class QueuePlacerThread extends Thread {
 	private RequestManager requestManager;
 	
 	public QueuePlacerThread(QueuePlacer requestPlacer) {
-		this.setName(this.getClass().getSimpleName() + "@" + hashCode());
+		this.setName(getClass().getSimpleName() + "@" + hashCode());
 		this.placer = requestPlacer;
 		this.requestManager = ServiceFactory.getInstance().getRequestManager();		
 	}
@@ -58,7 +58,7 @@ public class QueuePlacerThread extends Thread {
 		final long REQUEST_PLACER_PAUSE_FOR_FULL_QUEUE = 1 * 1000;
 		final long REQUEST_PLACER_PAUSE_FOR_NO_REQUESTS = 1 * 1000;
 		
-		//TODO: add support for service shutdown
+		//TODO: add support for graceful service shutdown
 		try {
 			while( true ) {
 				
@@ -66,10 +66,23 @@ public class QueuePlacerThread extends Thread {
 					List<PlinthosRequest> pRequests = 
 						requestManager.findNewRequests(placer.getMaxQueuedRequestId());
 	
+					
+					
 					boolean queueIsFull = false;
 					boolean noNewRequests = pRequests.size() == 0;
 					
 					for(PlinthosRequest pR : pRequests) {
+						
+						// do not schedule request if it has request for cancellation
+						if( pR.isCancelRequested() ) {
+							pR.setStatus(PlinthosRequestStatus.CANCELED);
+							requestManager.updateRequestStatus(
+									pR.getId(), 
+									PlinthosRequestStatus.CANCELED, 
+									null);
+							continue;
+						}
+						
 						if( placer.placeRequest(pR) == false ) {
 							queueIsFull = true;
 							break;
@@ -93,8 +106,7 @@ public class QueuePlacerThread extends Thread {
 			}
 		}
 		finally {
-			log.info("thread is stopped.");
+			log.info("Thread was stopped.");
 		}
 	}
-	
 }

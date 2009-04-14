@@ -91,6 +91,7 @@ public class Constants {
 	public static String SERVICES_LIBRARY = "../server-plugins";
 	
 	public static String QUEUE_FACTORY = "";
+
 //
 //	// Email related constants
 //
@@ -104,4 +105,9 @@ public class Constants {
 //
 //	public static final String MAILER_BEAN_JNDI_NAME = "java:/Mail";
 
+	/*
+	 * This property has no effect if client creates requests directly
+	 * in the request table.
+	 */
+	public static long MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME = -1;
 }

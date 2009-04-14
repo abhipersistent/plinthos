@@ -78,7 +78,7 @@ public class DefaultCommandImpl implements Command {
 
 	private void invokeService() {
 		
-    	requestMgr.updateRequestStatus(requestId, PlinthosRequestStatus.IN_PROGRESS);
+    	requestMgr.updateRequestStatus(requestId, PlinthosRequestStatus.IN_PROGRESS, null);
     	
     	PlinthosRequest plinthosRequest = requestMgr.getRequest(requestId);
 

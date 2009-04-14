@@ -12,4 +12,5 @@ public interface PlinthosRequestDAO extends GenericDAO<PlinthosRequest, Integer>
 	
 	List<PlinthosRequest> findRequestsByCorrelationId(String correlationId);
 	
+	Long findRequestCountWithStatus(String[] statuses);
 }
