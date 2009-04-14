@@ -3,14 +3,13 @@ package org.plinthos.core.service;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.Session;
-import org.plinthos.core.framework.HibernateUtil;
 import org.plinthos.core.model.PlinthosRequest;
 import org.plinthos.core.model.PlinthosRequestStatus;
 import org.plinthos.core.persistence.DAOFactory;
 import org.plinthos.core.persistence.PlinthosRequestDAO;
+import org.plinthos.core.persistence.txn.TxAction;
+import org.plinthos.core.persistence.txn.TxTemplate;
 
-//TODO: add robust txn handling
 class RequestManagerImpl implements RequestManager {
 
 	private PlinthosRequestDAO requestDao;
@@ -18,163 +17,202 @@ class RequestManagerImpl implements RequestManager {
 	RequestManagerImpl() {
 		this.requestDao = DAOFactory.getInstance().getRequestDAO(); 
 	}
-
-	@Override
-	public void cancelRequest(int requestId) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-
-        PlinthosRequest r = requestDao.findById(requestId, false);
-        if( r != null ) {
-        	r.setCancelRequested(true);
-        }
-
-    	session.getTransaction().commit();
-	}
-
-	@Override
-	public PlinthosRequest createRequest(PlinthosRequest r) {
-		
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-		
-		r.setStatus(PlinthosRequestStatus.SUBMITTED);
-		r.setSubmissionTime( new Date() );
-		requestDao.makePersistent(r);
-
-    	session.getTransaction().commit();
-    	
-		return r;
-	}
-
-	@Override
-	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId) {
-
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-		
-		List<PlinthosRequest> results = requestDao.findNewRequests(lastMaxRequestId);
-
-		session.getTransaction().commit();
-		
-		return results; 
-	}
-
-	@Override
-	public PlinthosRequest getRequest(int requestId) {
-		
-		boolean txStarted = false;
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		if( !session.getTransaction().isActive() ) {
-			session.beginTransaction();
-			txStarted = true;
-		}
-		
-		PlinthosRequest r = requestDao.findById(requestId, false);
-
-		if( txStarted ) {
-			session.getTransaction().commit();
-		}
-		
-		return r;
-	}
-
-	@Override
-	public void updateRequestStatus(int requestId, String status) {
-
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-		
-		PlinthosRequest r = getRequest(requestId);
-		r.setStatus(status);
-	
-		if( r != null ) {
-			r.setStatus(status);
-			if( PlinthosRequestStatus.isComplete(status) ) {
-				r.setCompletionTime(new Date());
-			}
-			else if( PlinthosRequestStatus.IN_PROGRESS.equals(status) ) {
-				// do nothing
-			}
-			else {
-				throw new RuntimeException("Invalid request status: " + status);
-			}
-		}
-
-		session.getTransaction().commit();
-	}
-
 	
 	@Override
-	public void updateRequestStatus(int requestId, String status, String statusMessage) {
-
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
+	public void cancelRequest(final int requestId) {
 		
-		PlinthosRequest r = getRequest(requestId);
-		r.setStatus(status);
-		r.setStatusMessage(statusMessage);
-	
-		if( r != null ) {
-			r.setStatus(status);
-			if( PlinthosRequestStatus.isComplete(status) ) {
-				r.setCompletionTime(new Date());
-			}
-			else if( PlinthosRequestStatus.IN_PROGRESS.equals(status) ) {
-				// do nothing
-			}
-			else {
-				throw new RuntimeException("Invalid request status: " + status);
-			}
-		}
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<PlinthosRequest> txAction = 
+			new TxAction<PlinthosRequest>() {
 
-		session.getTransaction().commit();
+				@Override
+				public PlinthosRequest run() {
+			        PlinthosRequest r = requestDao.findById(requestId, false);
+			        if( r != null ) {
+			        	r.setCancelRequested(true);
+			        }
+			        return null;
+				}
+		};
+		
+		txTemplate.execute(txAction);
 	}
 
 	@Override
-	public void updateProgressMessage(int requestId, String progressMessage) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
+	public PlinthosRequest createRequest(final PlinthosRequest r) {
+		
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<PlinthosRequest> txAction = 
+			new TxAction<PlinthosRequest>() {
 
-        PlinthosRequest r = requestDao.findById(requestId, false);
-       	r.setProgressMessage(progressMessage);
-
-    	session.getTransaction().commit();
+				@Override
+				public PlinthosRequest run() {
+					r.setStatus(PlinthosRequestStatus.SUBMITTED);
+					r.setSubmissionTime( new Date() );
+					return requestDao.makePersistent(r);
+				}
+		};
+		
+		return txTemplate.execute(txAction);
 	}
 
 	@Override
-	public void updateStatusMessage(int requestId, String statusMessage) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
+	public List<PlinthosRequest> findNewRequests(final int lastMaxRequestId) {
 
-        PlinthosRequest r = requestDao.findById(requestId, false);
-       	r.setStatusMessage(statusMessage);
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<List<PlinthosRequest>> txAction = 
+			new TxAction<List<PlinthosRequest>>() {
 
-    	session.getTransaction().commit();
+				@Override
+				public List<PlinthosRequest> run() {
+					return requestDao.findNewRequests(lastMaxRequestId);
+				}
+		};
+		
+		return txTemplate.execute(txAction);
+	}
+
+	@Override
+	public PlinthosRequest getRequest(final int requestId) {
+		
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<PlinthosRequest> txAction = 
+			new TxAction<PlinthosRequest>() {
+
+				@Override
+				public PlinthosRequest run() {
+					return requestDao.findById(requestId, false);
+				}
+		};
+		
+		return txTemplate.execute(txAction);
 	}
 	
 	@Override
-	public void saveResults(int requestId, String data) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
+	public void updateRequestStatus(final int requestId, final String status, final String statusMessage) {
 
-        PlinthosRequest r = requestDao.findById(requestId, false);
-        r.setRequestResults(data);
+		
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<PlinthosRequest> txAction = 
+			new TxAction<PlinthosRequest>() {
+				@Override
+				public PlinthosRequest run() {
+					PlinthosRequest r = getRequest(requestId);
+					r.setStatus(status);
+					r.setStatusMessage(statusMessage);
+					if( r != null ) {
+						r.setStatus(status);
+						if( PlinthosRequestStatus.isComplete(status) ) {
+							r.setCompletionTime(new Date());
+						}
+						else if( PlinthosRequestStatus.IN_PROGRESS.equals(status) ) {
+							// do nothing
+						}
+						else {
+							throw new RuntimeException("Invalid request status: " + status);
+						}
+					}
+					return null;
+				}
+		};
+		
+		txTemplate.execute(txAction);
+	}
 
-    	session.getTransaction().commit();
+	@Override
+	public void updateProgressMessage(final int requestId, final String progressMessage) {
+
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<PlinthosRequest> txAction = 
+			new TxAction<PlinthosRequest>() {
+				@Override
+				public PlinthosRequest run() {
+			        PlinthosRequest r = requestDao.findById(requestId, false);
+			       	r.setProgressMessage(progressMessage);
+			       	return null;
+				}
+			
+		};
+		
+		txTemplate.execute(txAction);
+	}
+
+	@Override
+	public void updateStatusMessage(final int requestId, final String statusMessage) {
+
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<PlinthosRequest> txAction = 
+			new TxAction<PlinthosRequest>() {
+				@Override
+				public PlinthosRequest run() {
+			        PlinthosRequest r = requestDao.findById(requestId, false);
+			       	r.setStatusMessage(statusMessage);
+					return null;
+				}
+		};
+		
+		txTemplate.execute(txAction);
+	}
+	
+	@Override
+	public void saveResults(final int requestId, final String data) {
+
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<PlinthosRequest> txAction = 
+			new TxAction<PlinthosRequest>() {
+				@Override
+				public PlinthosRequest run() {
+			        PlinthosRequest r = requestDao.findById(requestId, false);
+			        r.setRequestResults(data);
+			        return null;
+				}
+		};
+		
+		txTemplate.execute(txAction);
 	}
 
 	@Override
 	public List<PlinthosRequest> findRequestsByCorrelationId(
-			String correlationId) {
+			final String correlationId) {
 
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
+		TxTemplate txTemplate = new TxTemplate();
 		
-		List<PlinthosRequest> results = requestDao.findRequestsByCorrelationId(correlationId);
+		TxAction<List<PlinthosRequest>> txAction = 
+			new TxAction<List<PlinthosRequest>>() {
+				@Override
+				public List<PlinthosRequest> run() {
+					return requestDao.findRequestsByCorrelationId(correlationId);
+				}
+		};
+		
+		return txTemplate.execute(txAction);
+	}
 
-		session.getTransaction().commit();
+	@Override
+	public long findIncompleteRequestCount() {
 		
-		return results; 
+		TxTemplate txTemplate = new TxTemplate();
+
+		TxAction<Long> txAction = 
+			new TxAction<Long>() {
+				@Override
+				public Long run() {
+					String[] statusList = new String[] { 
+							PlinthosRequestStatus.SUBMITTED, 
+							PlinthosRequestStatus.IN_PROGRESS };
+					
+					return requestDao.findRequestCountWithStatus(statusList);
+				}
+		};
+		
+		return txTemplate.execute(txAction);
 	}
 }

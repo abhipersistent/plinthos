@@ -38,6 +38,8 @@ import org.plinthos.core.framework.HibernateUtil;
 import org.plinthos.core.model.SystemConfigurationProperty;
 import org.plinthos.core.persistence.DAOFactory;
 import org.plinthos.core.persistence.SystemConfigurationDAO;
+import org.plinthos.core.persistence.txn.TxAction;
+import org.plinthos.core.persistence.txn.TxTemplate;
 
 //TODO: add robust txn handling
 class ConstantsManagerImpl implements ConstantsManager {
@@ -49,15 +51,20 @@ class ConstantsManagerImpl implements ConstantsManager {
 	}
 	
 	public void loadSystemProperties() {
-		
-		
-    	SystemConfigurationDAO dao = getSystemConfigurationDAO();
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        List<SystemConfigurationProperty> allProperties = null;
-        session.beginTransaction();
-       	allProperties = dao.findAll();
-   		session.getTransaction().commit();
-    	
+   		TxTemplate txTemplate = new TxTemplate();
+   		
+   		TxAction<List<SystemConfigurationProperty>> txAction = 
+   			new TxAction<List<SystemConfigurationProperty>>() {
+				@Override
+				public List<SystemConfigurationProperty> run() {
+			    	SystemConfigurationDAO dao = getSystemConfigurationDAO();
+					return dao.findAll();
+				}
+   		};
+   		
+   		List<SystemConfigurationProperty> allProperties = 
+   			txTemplate.execute(txAction);
+   		
     	updateConstantValues(allProperties);
 		Constants.SYSTEM_CONFIG_LAST_UPDATE = new Timestamp (System.currentTimeMillis());
 	}

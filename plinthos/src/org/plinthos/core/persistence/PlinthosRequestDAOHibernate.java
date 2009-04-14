@@ -53,5 +53,15 @@ class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, I
 		q.setParameter("correlationId", correlationId);
 		return (List<PlinthosRequest>)q.list();
 	}
+
+	@Override
+	public Long findRequestCountWithStatus(String[] statuses) {
+		Query q = getSession().createQuery("select count(*) from PlinthosRequest r where r.status in ( :statusList )");
+		q.setParameterList("statusList", statuses);
+		
+		return (Long)q.uniqueResult();
+	}
+	
+	
 	
 }

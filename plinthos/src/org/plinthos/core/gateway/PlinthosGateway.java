@@ -3,6 +3,7 @@ package org.plinthos.core.gateway;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.plinthos.core.framework.Constants;
 import org.plinthos.core.model.PlinthosRequest;
 import org.plinthos.core.model.RegisteredTask;
 import org.plinthos.core.service.RequestManager;
@@ -58,6 +59,7 @@ public class PlinthosGateway {
 	
 	public SubmitResponse execute(SubmitRequest r) {
 		RequestManager requestManager = ServiceFactory.getInstance().getRequestManager();
+		
 		PlinthosRequest pR = new PlinthosRequest();
 		pR.setCorrelationId(r.getCorrelationId());
 		pR.setCompletionTime(null);
@@ -74,10 +76,30 @@ public class PlinthosGateway {
 		pR.setTaskInfo(taskInfo);
 		pR.setUserId(r.getUserId());
 
-		pR = requestManager.createRequest(pR);
-		
 		SubmitResponse response = new SubmitResponse();
-		response.setRequestId(String.valueOf(pR.getId()));
+		boolean checkIncompleteRequestCount = false;
+		if( Constants.MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME >= 0 ) {
+			checkIncompleteRequestCount = true;
+		}
+		
+		if( checkIncompleteRequestCount &&
+			requestManager.findIncompleteRequestCount() > Constants.MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME) {
+
+			response.setRequestId(null);
+			response.setResponseStatus(Response.STATUS_ERROR);
+			response.setResponseStatusMessage(
+					"Request rejected (correlationId=" + pR.getCorrelationId() + ")" +
+					" - max incomplete request count exceeds configured value. " +
+					"MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME = " + 
+					Constants.MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME 
+					);
+			
+			
+		}
+		else {
+			pR = requestManager.createRequest(pR);
+			response.setRequestId(String.valueOf(pR.getId()));
+		}
 		return response;
 	}
 	
@@ -110,15 +132,20 @@ public class PlinthosGateway {
 				requests.add(vo);
 			}
 		}
-		else if( r.getCorrelationId() != null ) {
-			 
-			List<PlinthosRequest> list = 
-				requestManager.findRequestsByCorrelationId(r.getCorrelationId());
-			
-			for(PlinthosRequest pR : list) {
-				RequestDetails vo = new RequestDetails();
-				loadRequestDetails(vo, pR,  r.isIncludeRequestData(), r.isIncludeResponseData());
-				requests.add(vo);
+
+		// fall back on correlationId if requestId is not provided or 
+		// we haven't found request with such id.
+		if( requests.size() == 0 ) {
+			if( r.getCorrelationId() != null ) {
+				 
+				List<PlinthosRequest> list = 
+					requestManager.findRequestsByCorrelationId(r.getCorrelationId());
+				
+				for(PlinthosRequest pR : list) {
+					RequestDetails vo = new RequestDetails();
+					loadRequestDetails(vo, pR,  r.isIncludeRequestData(), r.isIncludeResponseData());
+					requests.add(vo);
+				}
 			}
 		}
 

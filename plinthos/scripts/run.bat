@@ -29,4 +29,4 @@ set CLASSPATH=%PLINTHOS_DIR%\lib\commons-io-1.4.jar;%CLASSPATH%
 @rem set PLINTHOS_DB_TYPE = mysql
 set PLINTHOS_DB_TYPE = hsqldb
 
-java -cp %CLASSPATH% -Dplinthos.dir=%PLINTHOS_DIR% -Ddb.type=%PLINTHOS_DB_TYPE% -Dhttp.server.port=8180 org.plinthos.application.PlinthOSApp
+java -cp %CLASSPATH% -Dplinthos.dir=%PLINTHOS_DIR% -Ddb.type=%PLINTHOS_DB_TYPE% -Dhttp.server.port=8080 org.plinthos.application.PlinthOSApp

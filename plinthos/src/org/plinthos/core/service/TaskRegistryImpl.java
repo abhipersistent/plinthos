@@ -2,13 +2,12 @@ package org.plinthos.core.service;
 
 import java.util.List;
 
-import org.hibernate.Session;
-import org.plinthos.core.framework.HibernateUtil;
 import org.plinthos.core.model.RegisteredTask;
 import org.plinthos.core.persistence.DAOFactory;
 import org.plinthos.core.persistence.RegisteredTaskDAO;
+import org.plinthos.core.persistence.txn.TxAction;
+import org.plinthos.core.persistence.txn.TxTemplate;
 
-//TODO: add robust txn handling
 class TaskRegistryImpl implements TaskRegistry {
 
 	TaskRegistryImpl() {
@@ -16,39 +15,53 @@ class TaskRegistryImpl implements TaskRegistry {
 	}
 	
 	@Override
-	public RegisteredTask findTask(String taskType) {
-		RegisteredTaskDAO dao = getRegisteredTaskDAO();
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        RegisteredTask task = dao.findById(taskType, false);
-    	session.getTransaction().commit(); 
-		return task;
+	public RegisteredTask findTask(final String taskType) {
+		
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<RegisteredTask> txAction = new TxAction<RegisteredTask>() {
+
+			@Override
+			public RegisteredTask run() {
+				RegisteredTaskDAO dao = getRegisteredTaskDAO();
+				return dao.findById(taskType, false);
+			}
+			
+		};
+ 
+		return txTemplate.execute(txAction);
 	}
 
 	@Override
-	public RegisteredTask registerTask(RegisteredTask task) {
-		RegisteredTaskDAO dao = getRegisteredTaskDAO();
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-   
-        dao.makePersistent(task);
+	public RegisteredTask registerTask(final RegisteredTask task) {
 		
-    	session.getTransaction().commit();
-    	
-    	return task;
+		TxTemplate txTemplate = new TxTemplate();
+		TxAction<RegisteredTask> txAction = new TxAction<RegisteredTask>() {
+			@Override
+			public RegisteredTask run() {
+				RegisteredTaskDAO dao = getRegisteredTaskDAO();
+				return dao.makePersistent(task);
+			}
+		};
+		
+		return txTemplate.execute(txAction);
 	}
 
 	@Override
 	public List<RegisteredTask> findAll() {
-		RegisteredTaskDAO dao = getRegisteredTaskDAO();
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-   
-        List<RegisteredTask> allTasks = dao.findAll();
 		
-    	session.getTransaction().commit();
-    	
-    	return allTasks;
+		TxTemplate txTemplate = new TxTemplate();
+		TxAction<List<RegisteredTask>> txAction = new TxAction<List<RegisteredTask>>() {
+
+			@Override
+			public List<RegisteredTask> run() {
+				RegisteredTaskDAO dao = getRegisteredTaskDAO();
+				return dao.findAll();
+			}
+			
+		};
+
+		return txTemplate.execute(txAction);
 	}
 	
 	

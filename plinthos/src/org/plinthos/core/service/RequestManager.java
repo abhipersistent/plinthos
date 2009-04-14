@@ -38,6 +38,7 @@ public interface RequestManager {
 
 	public PlinthosRequest createRequest(PlinthosRequest r);	
 	
+	public long findIncompleteRequestCount();
 	
 	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId);
 	
@@ -49,8 +50,6 @@ public interface RequestManager {
 	 * @return
 	 */
 	public PlinthosRequest getRequest(int requestId);
-
-	public void updateRequestStatus(int requestId, String status);
 	
 	/**
 	 * Updates the status for specified request.

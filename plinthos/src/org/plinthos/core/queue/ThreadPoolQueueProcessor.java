@@ -104,8 +104,8 @@ public class ThreadPoolQueueProcessor implements QueueProcessor {
 			try {
 				createWorker(queueRequest);
 			} catch (Throwable t) {
-				//TODO: any status changes for the request?
-				log.error("Error occured while processing the request", t);
+				log.error("Error occured while processing the request:" + 
+						queueRequest.getRequestId(), t);
 			}
 		}
 		
