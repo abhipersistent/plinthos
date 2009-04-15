@@ -41,8 +41,11 @@
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">false</property>
 
-        <!-- Drop and re-create the database schema on startup -->
-        <property name="hbm2ddl.auto">create</property>
+        <!-- The hbm2ddl.auto property can have one of the following values  -->
+        <!--    'create',                                                    -->
+        <!--    'create-drop',                                               -->
+        <!--    'update'                                                     -->
+        <property name="hbm2ddl.auto">update</property>
 
 
         <mapping resource="org/plinthos/core/persistence/RegisteredTask.hbm.xml"/>
