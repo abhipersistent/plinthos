@@ -43,7 +43,7 @@ public class BasicStatisticsTask extends PlinthosTask {
 	 */
 	public String execute(String requestId, String xmlData) {
 		
-		ctx.sendProgressMessage("message from task");
+		ctx.setProgressMessage("message from task");
 		
 		XStream xstream = new XStream();
 		xstream.setClassLoader(this.getClass().getClassLoader());
