@@ -43,8 +43,6 @@ public class BasicStatisticsTask extends PlinthosTask {
 	 */
 	public String execute(String requestId, String xmlData) {
 		
-		ctx.setProgressMessage("message from task");
-		
 		XStream xstream = new XStream();
 		xstream.setClassLoader(this.getClass().getClassLoader());
 		BasicStatisticsRequest request = (BasicStatisticsRequest) xstream.fromXML(xmlData);
