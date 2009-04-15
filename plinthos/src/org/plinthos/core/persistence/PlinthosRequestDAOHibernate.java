@@ -30,7 +30,7 @@ class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, I
 	implements PlinthosRequestDAO {
 
 	@SuppressWarnings("unchecked")
-	@Override
+	// @Override
 	public List<PlinthosRequest> findByStatus(String status) {
 		Query q = getSession().createQuery("from PlinthosRequest r where r.status = :status");
 		q.setParameter("status", status);
@@ -38,7 +38,7 @@ class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, I
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
+	// @Override
 	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId) {
 		Query q = getSession().createQuery("from PlinthosRequest r where r.id > :lastMaxRequestId");
 		q.setParameter("lastMaxRequestId", lastMaxRequestId);
@@ -46,7 +46,7 @@ class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, I
 	}
 
 	@SuppressWarnings("unchecked")	
-	@Override
+	// @Override
 	public List<PlinthosRequest> findRequestsByCorrelationId(
 			String correlationId) {
 		Query q = getSession().createQuery("from PlinthosRequest r where r.correlationId = :correlationId");
@@ -54,7 +54,7 @@ class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, I
 		return (List<PlinthosRequest>)q.list();
 	}
 
-	@Override
+	// @Override
 	public Long findRequestCountWithStatus(String[] statuses) {
 		Query q = getSession().createQuery("select count(*) from PlinthosRequest r where r.status in ( :statusList )");
 		q.setParameterList("statusList", statuses);

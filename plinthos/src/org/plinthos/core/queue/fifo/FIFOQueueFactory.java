@@ -22,17 +22,17 @@ public class FIFOQueueFactory implements QueueFactory {
 		queuePlacer = new FIFOQueuePlacer(queue);
  	}
 	
-	@Override
+	// @Override
 	public Queue getQueue() {
 		return queue;
 	}
 
-	@Override
+	// @Override
 	public QueuePlacer getQueuePlacer() {
 		return queuePlacer;
 	}
 
-	@Override
+	// @Override
 	public QueueProcessor getQueueProcessor() {
 		return queueProcessor;
 	}
