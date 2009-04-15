@@ -14,14 +14,14 @@ class TaskRegistryImpl implements TaskRegistry {
 		
 	}
 	
-	@Override
+	// @Override
 	public RegisteredTask findTask(final String taskType) {
 		
 		TxTemplate txTemplate = new TxTemplate();
 		
 		TxAction<RegisteredTask> txAction = new TxAction<RegisteredTask>() {
 
-			@Override
+			// @Override
 			public RegisteredTask run() {
 				RegisteredTaskDAO dao = getRegisteredTaskDAO();
 				return dao.findById(taskType, false);
@@ -32,12 +32,12 @@ class TaskRegistryImpl implements TaskRegistry {
 		return txTemplate.execute(txAction);
 	}
 
-	@Override
+	// @Override
 	public RegisteredTask registerTask(final RegisteredTask task) {
 		
 		TxTemplate txTemplate = new TxTemplate();
 		TxAction<RegisteredTask> txAction = new TxAction<RegisteredTask>() {
-			@Override
+			// @Override
 			public RegisteredTask run() {
 				RegisteredTaskDAO dao = getRegisteredTaskDAO();
 				return dao.makePersistent(task);
@@ -47,13 +47,13 @@ class TaskRegistryImpl implements TaskRegistry {
 		return txTemplate.execute(txAction);
 	}
 
-	@Override
+	// @Override
 	public List<RegisteredTask> findAll() {
 		
 		TxTemplate txTemplate = new TxTemplate();
 		TxAction<List<RegisteredTask>> txAction = new TxAction<List<RegisteredTask>>() {
 
-			@Override
+			// @Override
 			public List<RegisteredTask> run() {
 				RegisteredTaskDAO dao = getRegisteredTaskDAO();
 				return dao.findAll();
@@ -65,7 +65,7 @@ class TaskRegistryImpl implements TaskRegistry {
 	}
 	
 	
-	@Override
+	// @Override
 	public void initTasks(List<RegisteredTask> tasks) {
 		for(RegisteredTask t : tasks) {
 			// only register task if it is not defined yet

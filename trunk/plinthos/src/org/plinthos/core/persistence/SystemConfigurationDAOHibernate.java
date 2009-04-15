@@ -31,7 +31,7 @@ class SystemConfigurationDAOHibernate extends GenericHibernateDAO<SystemConfigur
 	implements SystemConfigurationDAO {
 
 	@SuppressWarnings("unchecked")	
-	@Override
+	// @Override
 	public List<SystemConfigurationProperty> findModifiedSinceLastRefresh(
 			Date lastRefreshDate) {
 		Query q = getSession().createQuery("from SystemConfigurationProperty s where s.lastChanged > :lastRefreshDate");

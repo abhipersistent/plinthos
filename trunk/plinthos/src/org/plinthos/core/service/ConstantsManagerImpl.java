@@ -55,7 +55,7 @@ class ConstantsManagerImpl implements ConstantsManager {
    		
    		TxAction<List<SystemConfigurationProperty>> txAction = 
    			new TxAction<List<SystemConfigurationProperty>>() {
-				@Override
+				// @Override
 				public List<SystemConfigurationProperty> run() {
 			    	SystemConfigurationDAO dao = getSystemConfigurationDAO();
 					return dao.findAll();
@@ -154,7 +154,7 @@ class ConstantsManagerImpl implements ConstantsManager {
 	}
 
 
-	@Override
+	// @Override
 	public void initSystemProperties(Properties props) {
 		SystemConfigurationDAO dao = getSystemConfigurationDAO();
 

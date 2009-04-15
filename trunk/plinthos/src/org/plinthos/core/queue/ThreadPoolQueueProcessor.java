@@ -67,7 +67,7 @@ public class ThreadPoolQueueProcessor implements QueueProcessor {
 				Constants.MIN_THREAD_POOL_SIZE,
 				Constants.MAX_THREAD_POOL_SIZE, 
 				keepAliveTime,
-				TimeUnit.MINUTES, 
+				TimeUnit.SECONDS, 
 				new ArrayBlockingQueue<Runnable>(Constants.MAX_THREAD_POOL_SIZE));
 
 		log.info("Thread Pool is created with " + executor.getMaximumPoolSize()
@@ -176,12 +176,12 @@ public class ThreadPoolQueueProcessor implements QueueProcessor {
 		return requestManager;
 	}
 
-	@Override
+	// @Override
 	public void onRequestComplete(QueueRequest qR) {
 		requestQueue.notifyQueueAboutRequestCompletion(qR);
 	}
 
-	@Override
+	// @Override
 	public void onRequestStart(QueueRequest qR) {
 		requestQueue.notifyQueueAboutRequestStart(qR);
 	}

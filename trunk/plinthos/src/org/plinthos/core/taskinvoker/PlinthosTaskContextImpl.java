@@ -30,29 +30,29 @@ public class PlinthosTaskContextImpl implements PlinthosTaskContext {
 		return requestManager;
 	}
 	
-	@Override
+	// @Override
 	public boolean isTaskCancelled() {
 		PlinthosRequest r = requestManager.getRequest(requestId);
 		return r.isCancelRequested();  
 	}
 
-	@Override
+	// @Override
 	public void setResults(String data) {
 		requestManager.saveResults(requestId, data);
 	}
 
 
-	@Override
+	// @Override
 	public void setProgressMessage(String msg) {
 		requestManager.updateProgressMessage(requestId, msg);
 	}
 
-	@Override
+	// @Override
 	public void setStatusMessage(String msg) {
 		this.statusMessage = msg;
 	}
 
-	@Override
+	// @Override
 	public String getStatusMessage() {
 		return statusMessage;
 	}
