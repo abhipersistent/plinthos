@@ -7,9 +7,13 @@ public class PlinthOSApp {
 	private static final Logger log = Logger.getLogger(PlinthOSApp.class);
 	
 	public static void main(String[] args) {
-		log.info("starting PlinthOS...");
+		String startMsg = "starting PlinthOS..."; 
+		log.info(startMsg);
+		System.out.println(startMsg);
 		PlinthOS plinthOS = new PlinthOS();
 		plinthOS.start();
-		log.info("*** PlinthOS is running");
+		String readyMsg = "PlinthOS is running";
+		log.info(readyMsg);
+		System.out.println(readyMsg);
 	}
 }
