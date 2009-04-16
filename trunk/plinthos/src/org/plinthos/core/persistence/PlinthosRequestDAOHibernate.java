@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.plinthos.core.model.PlinthosRequest;
+import org.plinthos.core.model.PlinthosRequestStatus;
 
 class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, Integer>
 	implements PlinthosRequestDAO {
@@ -40,8 +41,9 @@ class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, I
 	@SuppressWarnings("unchecked")
 	// @Override
 	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId) {
-		Query q = getSession().createQuery("from PlinthosRequest r where r.id > :lastMaxRequestId");
+		Query q = getSession().createQuery("from PlinthosRequest r where r.id > :lastMaxRequestId and r.status = :status");
 		q.setParameter("lastMaxRequestId", lastMaxRequestId);
+		q.setParameter("status", PlinthosRequestStatus.SUBMITTED);
 		return (List<PlinthosRequest>)q.list();
 	}
 
