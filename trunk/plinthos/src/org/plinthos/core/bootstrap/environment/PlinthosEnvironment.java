@@ -14,9 +14,11 @@ public class PlinthosEnvironment {
 	
 	private String hbrConfigurationFile = null;
 	
-	private boolean useEmbeddedDatabaseServer = false;
+	private Boolean useEmbeddedDatabaseServer = null;
 	
-	private boolean useEmbeddedHttpServer = false;
+	private Boolean useEmbeddedHttpServer = null;
+	
+	private String taskClasspath = null;
 	
 	private int httpPort = -1;
 	
@@ -63,14 +65,6 @@ public class PlinthosEnvironment {
 		this.dbType = dbType;
 	}
 
-	public boolean isUseEmbeddedDatabaseServer() {
-		return useEmbeddedDatabaseServer;
-	}
-
-	public void setUseEmbeddedDatabaseServer(boolean useEmbeddedDatabaseServer) {
-		this.useEmbeddedDatabaseServer = useEmbeddedDatabaseServer;
-	}
-
 	public int getHttpPort() {
 		return httpPort;
 	}
@@ -79,12 +73,28 @@ public class PlinthosEnvironment {
 		this.httpPort = httpPort;
 	}
 
-	public boolean isUseEmbeddedHttpServer() {
+	public Boolean getUseEmbeddedDatabaseServer() {
+		return useEmbeddedDatabaseServer;
+	}
+
+	public void setUseEmbeddedDatabaseServer(Boolean useEmbeddedDatabaseServer) {
+		this.useEmbeddedDatabaseServer = useEmbeddedDatabaseServer;
+	}
+
+	public Boolean getUseEmbeddedHttpServer() {
 		return useEmbeddedHttpServer;
 	}
 
-	public void setUseEmbeddedHttpServer(boolean useEmbeddedHttpServer) {
+	public void setUseEmbeddedHttpServer(Boolean useEmbeddedHttpServer) {
 		this.useEmbeddedHttpServer = useEmbeddedHttpServer;
+	}
+
+	public String getTaskClasspath() {
+		return taskClasspath;
+	}
+
+	public void setTaskClasspath(String taskClasspath) {
+		this.taskClasspath = taskClasspath;
 	}
 	
 	

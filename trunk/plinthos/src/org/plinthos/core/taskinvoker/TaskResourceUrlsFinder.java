@@ -24,6 +24,8 @@ package org.plinthos.core.taskinvoker;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.plinthos.core.bootstrap.environment.PlinthosEnvironment;
@@ -44,11 +46,12 @@ public class TaskResourceUrlsFinder {
 	
 	private static final String PATH_SEPARATOR = System.getProperty("file.separator");
 	
-	private String PLINTHOS_DIRECTORY = System.getProperty("plinthos.dir"); 
+	private String PLINTHOS_DIRECTORY = null; 
 
+	private PlinthosEnvironment config = null;
+	
 	public TaskResourceUrlsFinder() {
-		PlinthosEnvironment config = 
-			PlinthosEnvironmentHolder.getInstance().getConfig();
+		config = PlinthosEnvironmentHolder.getInstance().getConfig();
 		PLINTHOS_DIRECTORY = config.getPlinthosDir();
 	}
 	
@@ -66,7 +69,7 @@ public class TaskResourceUrlsFinder {
 		
 		String[] fNames = plinthosLibDir.list();
 		
-		URL[] urls = new URL[fNames.length];
+		List<URL> urls = new ArrayList<URL>();
 		
 		int i=0;
 		StringBuilder buffer = new StringBuilder();
@@ -78,16 +81,51 @@ public class TaskResourceUrlsFinder {
 				buffer.append(fName).append("!/");
 				String fPath = buffer.toString();
 		        logger.debug("adding jar: " + fPath);		
+		        String urlText = "jar:file:" + fPath;
 				try {
-					urls[i] = new URL("jar:file:" + fPath);
+					urls.add( new URL(urlText) );
 					i++;
-				} catch (MalformedURLException eX) {
-					eX.printStackTrace();
+				} catch (MalformedURLException logOnly) {
+					logger.error("Error while parsing url: '" + urlText + "', error: ", logOnly);
 				}
 			}
 		}
 		
+
+		urls.addAll( getDefaultClasspathURLs( config.getTaskClasspath() ) );
 		
-    	return urls;
+    	return urls.toArray(new URL[urls.size()]);
 	}
+	
+	//TODO: refactor this code to avoid duplication
+	private List<URL> getDefaultClasspathURLs( String classpath) {
+		List<URL> urlList = new ArrayList<URL>();
+		if( classpath != null && classpath.length() > 0 ) {
+			String[] parts = classpath.split(";");
+			for(String path : parts) {
+				try {
+					URL url = null;
+
+					if( path.endsWith("jar") ) {
+						path = path + "!/";
+						url = new URL("jar:file:" + path);
+					}
+					else {
+						File f = new File(path);
+						url = f.toURI().toURL();
+					}
+
+					logger.info("adding classpath url: '" + url.toExternalForm() + "'");
+					urlList.add( url );
+				}
+				catch(Exception logOnly) {
+					logger.error("Error while parsing task classpath: claspath=" + 
+							classpath + ", path=" + path + ", error: ", logOnly);
+				}
+			}
+		}
+		
+		return urlList;
+	}
+	
 }

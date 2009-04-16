@@ -35,7 +35,7 @@ public class PlinthOS {
 	
 	public void start() {
 		
-		if( env.isUseEmbeddedDatabaseServer() ) {
+		if( env.getUseEmbeddedDatabaseServer() ) {
 			EmbeddedHSQLDBServer dbServer = EmbeddedHSQLDBServer.getInstance();
 			dbServer.start();
 		}
@@ -52,7 +52,7 @@ public class PlinthOS {
 	
 		
 		// HTTP Listener/connector
-		if( this.env.isUseEmbeddedHttpServer() ) {
+		if( this.env.getUseEmbeddedHttpServer() ) {
 			int httpPort = getHttpServerPort();
 			httpServer = new HttpServer();
 			httpServer.setPort(httpPort);
@@ -107,11 +107,11 @@ public class PlinthOS {
 	public void shutdown() {
 		log.info("sutting down...");
 		
-		if( env != null && env.isUseEmbeddedDatabaseServer() ) {
+		if( env != null && env.getUseEmbeddedDatabaseServer() ) {
 			dbServer.stop();
 		}
 		
-		if( env != null && env.isUseEmbeddedHttpServer() ) {
+		if( env != null && env.getUseEmbeddedHttpServer() ) {
 			httpServer.shutdown();
 		}
 	}

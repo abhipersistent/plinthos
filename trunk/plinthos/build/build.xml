@@ -155,6 +155,13 @@ _______________________/                              \___________________/
      	  </fileset>
      </copy>
 
+     <copy overwrite="true" todir="${build.dist}/server/nodes">
+     	  <fileset dir="${pos.nodes}">
+     	  	<include name="**/*"/>
+     	  </fileset>
+     </copy>
+
+
      <copy overwrite="true" todir="${build.dist}/server/lib">
      	  <fileset dir="${pos.lib}">
      	  	<include name="**/*"/>
