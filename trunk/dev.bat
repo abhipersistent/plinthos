@@ -1,3 +1,3 @@
-start "PlinthOS  [build]" /DC:\POS\plinthos\build
+start "PlinthOS  [build]" /DC:\code\plinthos\plinthos\build
 
-start "POS Statistics Service  [build]" /DC:\POS\plinthos-samples\StatisticsService\build
+start "POS Statistics Service  [build]" /DC:\code\plinthos\plinthos-samples\StatisticsService\build
