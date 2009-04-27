@@ -194,19 +194,19 @@ _______________________/                              \___________________/
   <!-- DEPLOY PlinthOS  -->
   <target name="deploy" depends="build">
   
-    <mkdir dir="${deploy.plinthos.server.home}"/>
-    <mkdir dir="${deploy.plinthos.server-plugins.home}"/>
-    <mkdir dir="${deploy.plinthos.server-shared.home}"/>
+    <mkdir dir="${plinthos.server}"/>
+    <mkdir dir="${plinthos.server-plugins}"/>
+    <mkdir dir="${plinthos.server-shared}"/>
 
 
-     <copy overwrite="true" todir="${deploy.plinthos.server.home}">
+     <copy overwrite="true" todir="${plinthos.server}">
      	  <fileset dir="${build.dist}/server">
      	  	<include name="**/*"/>
      	  </fileset>
      </copy>
 
 
-     <copy overwrite="true" todir="${deploy.plinthos.server-shared.home}">
+     <copy overwrite="true" todir="${plinthos.server-shared}">
      	  <fileset dir="${build.dist}/server-shared">
      	  	<include name="**/*"/>
      	  </fileset>
@@ -214,9 +214,9 @@ _______________________/                              \___________________/
   </target>
 
   <target name="clean-server" depends="init">
-  	 <delete dir="${deploy.plinthos.server.home}"/>
-  	 <delete dir="${deploy.plinthos.server-shared.home}"/>
-  	 <delete dir="${deploy.plinthos.server-plugins.home}"/>
+  	 <delete dir="${plinthos.server}"/>
+  	 <delete dir="${plinthos.server-shared}"/>
+  	 <delete dir="${plinthos.server-plugins}"/>
   </target>
 
   <!--

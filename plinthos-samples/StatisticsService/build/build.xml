@@ -89,7 +89,7 @@
   <!-- CREATE THE BYTECODE -->
   <target name="src-compile" depends="init,make-build-dirs">
     
-    <copy file="${deploy.plinthos.server-shared.home}/${plinthos.sharedjar}"
+    <copy file="${plinthos.server-shared}/${plinthos.sharedjar}"
           todir="${app.lib}"/>
 
     <javac srcdir="${app.src}" 
@@ -156,17 +156,17 @@
   <!-- DEPLOY THE SERVICE AND ITS DEPENDENCIES -->
   <target name="deploy" depends="build">
   
-    <mkdir dir="${deploy.plinthos.server-plugins.home}/${app.exec.file}" />
+    <mkdir dir="${plinthos.server-plugins}/${app.exec.file}" />
 
-    <copy todir="${deploy.plinthos.server-plugins.home}/${app.exec.file}">      
+    <copy todir="${plinthos.server-plugins}/${app.exec.file}">      
       <fileset dir="${build.dist}/${app.exec.file}">
         <include name="**/*" />
       </fileset>
     </copy>
 
     <!-- deploying client app that submits requests to plinthos -->
-    <mkdir dir="${deploy.plinthos.samples.home}/${app.name}"/>
-    <copy overwrite="true" todir="${deploy.plinthos.samples.home}/${app.name}">
+    <mkdir dir="${plinthos.samples}/${app.name}"/>
+    <copy overwrite="true" todir="${plinthos.samples}/${app.name}">
      	  <fileset dir="${build.dist}/${app.name}">
      	  	<include name="**/*"/>
      	  </fileset>
@@ -175,8 +175,8 @@
   </target>
 
   <target name="clean-deployed" depends="init">
-    <delete dir="${deploy.plinthos.samples.home}/${app.name}"/>  
-    <delete dir="${deploy.plinthos.server-plugins.home}/${app.exec.file}"/>  
+    <delete dir="${plinthos.samples}/${app.name}"/>  
+    <delete dir="${plinthos.server-plugins}/${app.exec.file}"/>  
   </target>
 
   <!-- CLEAN UP -->
