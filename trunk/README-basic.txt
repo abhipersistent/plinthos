@@ -14,21 +14,25 @@ PREREQUISITES:
    -----------------------------------------------------------------------------
 ____________________________________________________________________________________________
 
-1. Open ./build/build-common.properties file and modify the value of the
-   'plinthos.deploy' property, so that it refers to the location where you want 
-   to install the plinthos server and the sample application.
+1. Open ./build/build-common.properties file and modify the values of the 'plinthos.home' 
+   and 'plinthos.deploy' properties, so that they refer to the location where you installed
+   the source code and the location that you want to install the plinthos server and the 
+   sample application, respectively.
 ____________________________________________________________________________________________
 
 2. Copy ./nodes/node1/basic-node.properties to ./nodes/node1/node.properties
-   and modify the property values as needed.
+   and modify the property values as needed. For example, the type of the database that the
+   node should use, the port that it should listen to for the HTTP requests, etc.
 ____________________________________________________________________________________________
 
-3. Invoke the 'ant' build script (default target is 'deploy') from 
+3. In order to build the PlinthOS server, invoke the 'ant' build script (default target is 
+   'deploy') from the following directory: 
 
    ./plinthos/build/
 ____________________________________________________________________________________________
 
-4. Invoke the 'ant' build script (default target is 'deploy') from 
+4. In order to build the sample Statistics service, invoke the 'ant' build script (default 
+   target is 'deploy') from the following directory:
 
    ./plinthos-samples/StatisticsService/build/
 ____________________________________________________________________________________________
