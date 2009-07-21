@@ -28,13 +28,8 @@ import org.apache.log4j.Logger;
 
 /**
  * This is a fundamental class that encapsulates the request of the system's clients.
- * Since, PlinthOS was originally created to generate reports the first part of the
- * name was introduced. 
- * 
- * We do not intend to change that; besides the term <I>QueueRequest</I> 
- * is so overloaded that our historical prefix is actually good for disambiguation.
- * 
- * PlinthosRequest objects are persisted and its status is tracked by the status.
+ * <code>PlinthosRequest</code> objects are persisted and their status is tracked by 
+ * the <code>status</code> variable.
  * 
  * @author <a href="mailto:babis.marmanis@gmail.com">Babis Marmanis</a>
  * @version 1.0
@@ -50,6 +45,7 @@ public class PlinthosRequest implements Serializable {
 	private static final int MAX_LENGTH_FOR_PROGRESS_MESSAGE = 1024;
 	
 	private int id = -1;
+	
 	private String correlationId;
 	private String userId;
 	private String requestParams;
