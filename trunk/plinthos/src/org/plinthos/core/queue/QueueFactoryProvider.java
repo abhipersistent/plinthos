@@ -38,7 +38,18 @@ public class QueueFactoryProvider {
 		catch(Exception e) {
 			throw new RuntimeException("Failed to craete queue factory: ", e);
 		}
-		return queueFactory;
-		
+		return queueFactory;	
+	}
+	
+	public QueueFactory getQueueFactory(String queueFactoryName) {
+		QueueFactory queueFactory = null;
+		try {
+			Class<?> queueFactoryClass = Class.forName(queueFactoryName);
+			queueFactory = (QueueFactory)queueFactoryClass.newInstance();
+		}
+		catch(Exception e) {
+			throw new RuntimeException("Failed to create queue factory: ", e);
+		}
+		return queueFactory;	
 	}
 }
