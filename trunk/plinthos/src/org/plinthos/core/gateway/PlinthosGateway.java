@@ -92,13 +92,15 @@ public class PlinthosGateway {
 		
 		TaskRegistry taskRegistry = ServiceFactory.getInstance().getTaskRegistry();
 		RegisteredTask taskInfo = taskRegistry.findTask(r.getType());
+
 		pR.setTaskInfo(taskInfo);
 		
-		pR.setTaskInfo(taskInfo);
 		pR.setUserId(r.getUserId());
 
 		SubmitResponse response = new SubmitResponse();
+		
 		boolean checkIncompleteRequestCount = false;
+		
 		if( Constants.MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME >= 0 ) {
 			checkIncompleteRequestCount = true;
 		}
@@ -114,10 +116,7 @@ public class PlinthosGateway {
 					"MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME = " + 
 					Constants.MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME 
 					);
-			
-			
-		}
-		else {
+		} else {
 			pR = requestManager.createRequest(pR);
 			response.setRequestId(String.valueOf(pR.getId()));
 		}
