@@ -85,7 +85,7 @@ public class PlithosThreadPoolExecutor extends ThreadPoolExecutor {
 	 */
 	public void execute(Runnable command) {
 
-		// Check if the queue has free space to accomodate command without reaching its capacity.
+		// Check if the queue has free space to execute this command without reaching its capacity.
 		if ( ! tasksQueue.offer(command) ) {
 			log.info("*** Pool doesn't have free worker to handle the request ***");
 			log.info("Waiting for the worker ...");
