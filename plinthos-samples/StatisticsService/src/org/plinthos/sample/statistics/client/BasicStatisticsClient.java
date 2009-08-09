@@ -40,9 +40,11 @@ import com.thoughtworks.xstream.XStream;
 
 /**
  * This class provides the steps for accessing the service from client.
- * If you would like to submit directly a request into the database then the first argument should be the word "direct".
- * Alternatively, you can use the word "http" to submit the request via HTTP. There is a default proxy for XML-RPC that
- * uses HTTP.
+ * If you would like to submit directly a request into the database then 
+ * the first argument should be the word "direct".
+ * 
+ * Alternatively, you can use the word "http" to submit the request via HTTP. 
+ * There is a default proxy for XML-RPC that uses HTTP.
  *
  * @author <a href="mailto:babis.marmanis@gmail.com">Babis Marmanis</a>
  * @param request
