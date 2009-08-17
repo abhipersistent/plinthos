@@ -73,7 +73,7 @@ public class BasicStatisticsClient {
 				Connection jdbc = null;
 		
 		        String userName = "root";
-		        String password = "root";
+		        String password = "";
 		        String url = "jdbc:mysql://localhost:3306/plinthos";
 		        Class.forName ("com.mysql.jdbc.Driver").newInstance();
 		        jdbc = DriverManager.getConnection (url, userName, password);
@@ -90,6 +90,7 @@ public class BasicStatisticsClient {
 			        
 			        System.out.println("Submitted:\n"+requestXml);
 		        }
+		        
 			} else if (args[0].equalsIgnoreCase("http")) {
 	
 		        for (int i=0; i<loop;i++) {
