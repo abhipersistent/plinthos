@@ -67,9 +67,7 @@ public class HttpServer {
 	    handler.addServletWithMapping("org.plinthos.connector.http.HttpServer$RootServlet", "/");	    
 	    
 	    handler.addServletWithMapping("org.plinthos.connector.http.UrlGatewayServlet", "/plinthos/test");
-	    handler.addServletWithMapping(
-	    		new ServletHolder(new XmlRpcGatewayServlet()), 
-	    		"/plinthos/gateway");
+	    handler.addServletWithMapping(new ServletHolder(new XmlRpcGatewayServlet()), "/plinthos/gateway");
 	    
 	    try {
 	    	server.start();
