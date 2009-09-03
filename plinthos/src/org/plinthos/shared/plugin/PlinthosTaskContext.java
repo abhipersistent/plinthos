@@ -32,4 +32,8 @@ public interface PlinthosTaskContext {
 	void setStatusMessage(String msg);
 	
 	String getStatusMessage();	
+	
+	void setEtc(double etc);
+	
+	String getRequestTemplateParameters();
 }

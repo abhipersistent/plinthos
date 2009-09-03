@@ -86,6 +86,8 @@ public class DefaultCommandImpl implements Command {
 
     	String executorClassName = task.getExecutorClass();
     	
+    	String executorLocation = task.getExecutorLocation();
+    	
     	
 		String status = null;
 	    try { 
@@ -93,7 +95,7 @@ public class DefaultCommandImpl implements Command {
 	    	ctx.setRequestManager(requestMgr);
 	    	ctx.setRequestId(requestId);
 
-    		status = loadAndExecuteTask( executorClassName, ctx,
+    		status = loadAndExecuteTask( executorClassName, executorLocation, ctx,
     				String.valueOf(requestId), plinthosRequest.getRequestParams());
 	    	
 	    	log.info(" Queue Request         : " + queueRequest.getRequestId());
@@ -112,8 +114,8 @@ public class DefaultCommandImpl implements Command {
 	}
 
 
-	private String loadAndExecuteTask(String taskClassName, 
-			PlinthosTaskContext ctx,
+	private String loadAndExecuteTask(String taskClassName,
+			String executorLocation, PlinthosTaskContext ctx,
 			String requestId, String requestData) 
 		throws Exception {
 		
@@ -132,7 +134,7 @@ public class DefaultCommandImpl implements Command {
 			 * only be using PlinthOS classloader that is not aware of any 
 			 * classes related to task implementation.
 			 */
-			ClassLoader taskClassLoader = tclFactory.getClassLoaderForTask(taskClassName);
+			ClassLoader taskClassLoader = tclFactory.getClassLoaderForTask(executorLocation);
 			/*
 			 * Some of the code that task is using may rely on context class loader instead 
 			 * of class loader of the class.

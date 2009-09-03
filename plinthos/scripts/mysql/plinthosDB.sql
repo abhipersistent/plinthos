@@ -15,6 +15,7 @@ CREATE TABLE `report_request` (
   `EXPIRATION` datetime DEFAULT NULL,
   `SUBMISSION_TIME` datetime DEFAULT NULL,
   `COMPLETION_TIME` datetime DEFAULT NULL,
+  `ETC` double DEFAULT NULL,
   `USER_EMAIL` varchar(255) DEFAULT NULL,
   `CANCEL_REQUESTED` bit(1) DEFAULT NULL,
   `PROGRESS_MESSAGE` varchar(1024) DEFAULT NULL,
@@ -44,6 +45,7 @@ CREATE TABLE `task_registry` (
   `task_type` varchar(255) NOT NULL,
   `OBJ_VERSION` int(11) NOT NULL,
   `executor_class` varchar(1024) DEFAULT NULL,
+  `executor_location` varchar(1024) DEFAULT NULL,
   `etc_supported` bit(1) DEFAULT NULL,
   PRIMARY KEY (`task_type`)
 ) ENGINE=InnoDB;

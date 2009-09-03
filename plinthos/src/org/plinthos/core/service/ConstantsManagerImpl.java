@@ -197,4 +197,21 @@ class ConstantsManagerImpl implements ConstantsManager {
         	}
         }
 	}
+
+	@Override
+	public SystemConfigurationProperty findSystemConfiguration(
+			final String systemConfigurationPropertyName) {
+		TxTemplate txTemplate = new TxTemplate();
+
+		TxAction<SystemConfigurationProperty> txAction = 
+			new TxAction<SystemConfigurationProperty>() {
+				// @Override
+				public SystemConfigurationProperty run() {
+					return getSystemConfigurationDAO().findSystemConfiguration(
+						systemConfigurationPropertyName);
+				}
+			};
+
+		return txTemplate.execute(txAction);
+	}
 }

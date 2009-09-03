@@ -130,11 +130,11 @@ class RequestManagerImpl implements RequestManager {
 						r.setStatus(status);
 						if( PlinthosRequestStatus.isComplete(status) ) {
 							r.setCompletionTime(new Date());
-						}
-						else if( PlinthosRequestStatus.IN_PROGRESS.equals(status) ) {
+						} else if( PlinthosRequestStatus.IN_PROGRESS.equals(status) ) {
 							// do nothing
-						}
-						else {
+						} else if( PlinthosRequestStatus.SUBMITTED.equals(status) ) {
+							// do nothing
+						} else {
 							throw new RuntimeException("Invalid request status: " + status);
 						}
 					}
@@ -235,5 +235,39 @@ class RequestManagerImpl implements RequestManager {
 		};
 		
 		return txTemplate.execute(txAction);
+	}
+
+	@Override
+	public List<PlinthosRequest> findRequestsByStatus(final String status) {
+
+		TxTemplate txTemplate = new TxTemplate();
+
+		TxAction<List<PlinthosRequest>> txAction = 
+			new TxAction<List<PlinthosRequest>>() {
+				// @Override
+				public List<PlinthosRequest> run() {
+					return requestDao.findByStatus(status);
+				}
+		};
+
+		return txTemplate.execute(txAction);
+	}
+
+	@Override
+	public void updateEtc(final int requestId, final double etc) {
+
+		TxTemplate txTemplate = new TxTemplate();
+		
+		TxAction<PlinthosRequest> txAction = 
+			new TxAction<PlinthosRequest>() {
+				// @Override
+				public PlinthosRequest run() {
+			        PlinthosRequest r = requestDao.findById(requestId, false);
+			       	r.setEtc(etc);
+					return null;
+				}
+		};
+		
+		txTemplate.execute(txAction);
 	}
 }

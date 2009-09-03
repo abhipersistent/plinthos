@@ -21,6 +21,9 @@
  */
 package org.plinthos.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.plinthos.connector.http.HttpServer;
 import org.plinthos.core.bootstrap.environment.DefaultPlinthosEnvironmentBuilder;
@@ -28,12 +31,21 @@ import org.plinthos.core.bootstrap.environment.PlinthosEnvironment;
 import org.plinthos.core.bootstrap.environment.PlinthosEnvironmentHolder;
 import org.plinthos.core.bootstrap.initialdata.ConstantsLoader;
 import org.plinthos.core.bootstrap.initialdata.RegisteredTasksLoader;
+import org.plinthos.core.framework.Constants;
+import org.plinthos.core.model.PlinthosRequest;
+import org.plinthos.core.model.PlinthosRequestStatus;
+import org.plinthos.core.model.RegisteredTask;
+import org.plinthos.core.model.SystemConfigurationProperty;
 import org.plinthos.core.queue.QueueFactory;
 import org.plinthos.core.queue.QueueFactoryProvider;
 import org.plinthos.core.queue.QueuePlacer;
 import org.plinthos.core.queue.QueuePlacerThread;
 import org.plinthos.core.queue.QueueProcessor;
 import org.plinthos.core.queue.QueueProcessorThread;
+import org.plinthos.core.service.ConstantsManager;
+import org.plinthos.core.service.RequestManager;
+import org.plinthos.core.service.ServiceFactory;
+import org.plinthos.core.service.TaskRegistry;
 import org.plinthos.database.EmbeddedHSQLDBServer;
 
 public class PlinthOS {
@@ -57,7 +69,7 @@ public class PlinthOS {
 	public void start() {
 		
 		if( env.getUseEmbeddedDatabaseServer() ) {
-			EmbeddedHSQLDBServer dbServer = EmbeddedHSQLDBServer.getInstance();
+			dbServer = EmbeddedHSQLDBServer.getInstance();
 			dbServer.start();
 		}
 
@@ -65,6 +77,11 @@ public class PlinthOS {
 		 * Useful when we use embedded database that is recreated on startup. 
 		 */
 		loadInitialDataIfMissing();
+		
+		/*
+		 * Process incomplete requests as per task type configuration   
+		 */
+		processIncompleteRequests();
 		
 		/*
 		 * Create request processing threads.
@@ -160,5 +177,44 @@ public class PlinthOS {
 		
     	return port;
 	}
-	
+
+	private void processIncompleteRequests(){
+
+    	TaskRegistry taskRegistry = ServiceFactory.getInstance().getTaskRegistry();
+    	ConstantsManager constantsManager =	ServiceFactory.getInstance().getConstantsManager();
+    	RequestManager requestManager = ServiceFactory.getInstance().getRequestManager();
+    	
+    	String propertyName;
+    	SystemConfigurationProperty property;
+    	List<String> reSubmitTaskTypes = new ArrayList<String>();
+    	
+    	for (RegisteredTask registeredTask : taskRegistry.findAll()) {
+    		propertyName = registeredTask.getTaskType()
+					+ Constants.TASK_RESUBMIT_ON_PLINTHOS_RESTART_SUFFIX;
+			property = constantsManager.findSystemConfiguration(propertyName);
+			
+			if (property != null && "TRUE".equalsIgnoreCase(property.getValue())) {
+				reSubmitTaskTypes.add(registeredTask.getTaskType());
+			}
+		}
+    	
+        log.info("Attempting to resubmit/fail Running task on plinthos restart.");
+        /*
+         * Change request status to SUBMITTED/FAILED as per configuration. 
+         */
+        List<PlinthosRequest> reportRequests = requestManager.
+        	findRequestsByStatus(PlinthosRequestStatus.IN_PROGRESS);
+		for (PlinthosRequest request : reportRequests) {
+			if (reSubmitTaskTypes.contains(request.getTaskInfo().getTaskType())) {
+				requestManager.updateRequestStatus(request.getId(),
+						PlinthosRequestStatus.SUBMITTED, "PlinthOS Restarted");
+			} else {
+				requestManager.updateRequestStatus(request.getId(),
+						PlinthosRequestStatus.FAILED, "PlinthOS Restarted");
+			}
+		}
+
+        log.info("Done to resubmit/fail Running task on plinthos restart.");
+
+    }	
 }

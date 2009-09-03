@@ -86,7 +86,7 @@ public class RegisteredTasksLoader {
 				}
 				
 				String[] tokens = line.split(",");
-				if( tokens.length != 3 ) {
+				if( tokens.length != 4 ) {
 					logger.info("Invalid line in task registration file: [" + line + "]");
 					continue;
 				}
@@ -94,7 +94,8 @@ public class RegisteredTasksLoader {
 				RegisteredTask vo = new RegisteredTask();
 				vo.setTaskType(tokens[0]);
 				vo.setExecutorClass(tokens[1]);
-				vo.setEtcSupported(Boolean.parseBoolean(tokens[2]));
+				vo.setExecutorLocation(tokens[2]);
+				vo.setEtcSupported(Boolean.parseBoolean(tokens[3]));
 				tasks.add(vo);
 				
 			}

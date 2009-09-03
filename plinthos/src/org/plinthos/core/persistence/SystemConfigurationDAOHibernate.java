@@ -39,4 +39,16 @@ class SystemConfigurationDAOHibernate extends GenericHibernateDAO<SystemConfigur
 		return (List<SystemConfigurationProperty>)q.list();
 	}
 	
+	@SuppressWarnings("unchecked")
+	// @Override
+	public SystemConfigurationProperty findSystemConfiguration(String systemConfigurationPropertyName){
+		Query q = getSession().createQuery("from SystemConfigurationProperty s where s.name = :name");
+		q.setParameter("name", systemConfigurationPropertyName);
+		List<SystemConfigurationProperty> list =  q.list();
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+	}
+	
 }

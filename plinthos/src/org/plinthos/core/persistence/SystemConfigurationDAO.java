@@ -30,4 +30,6 @@ public interface SystemConfigurationDAO extends GenericDAO<SystemConfigurationPr
 
 	public List<SystemConfigurationProperty> findModifiedSinceLastRefresh(Date lastRefreshDate);	
 	
+	public SystemConfigurationProperty findSystemConfiguration(String systemConfigurationPropertyName);
+	
 }

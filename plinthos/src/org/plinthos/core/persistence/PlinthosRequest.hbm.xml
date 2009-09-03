@@ -16,6 +16,7 @@
         <property name="expiration" type="timestamp" column="EXPIRATION"/>
         <property name="submissionTime" type="timestamp" column="SUBMISSION_TIME"/>
         <property name="completionTime" type="timestamp" column="COMPLETION_TIME"/>
+        <property name="etc" column="ETC"/>
         <property name="userEmail" column="USER_EMAIL" length="255"/>
 		<property name="cancelRequested" column="CANCEL_REQUESTED"/>
 		<property name="progressMessage" column="PROGRESS_MESSAGE" length="1024"/>
