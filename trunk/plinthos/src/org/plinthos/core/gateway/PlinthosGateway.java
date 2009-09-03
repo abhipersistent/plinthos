@@ -179,6 +179,7 @@ public class PlinthosGateway {
 
 		vo.setCancelRequested(r.isCancelRequested());
 		vo.setCompletionDate(r.getCompletionTime());
+		vo.setEtc(r.getEtc());
 		vo.setCorrelationId(r.getCorrelationId());
 		vo.setExpirationDate(r.getExpiration());
 		vo.setPriority(r.getPriority());

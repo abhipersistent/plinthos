@@ -77,4 +77,14 @@ public class PlinthosTaskContextImpl implements PlinthosTaskContext {
 	public String getStatusMessage() {
 		return statusMessage;
 	}
+
+	// @Override
+	public void setEtc(double etc) {
+		requestManager.updateEtc(requestId, etc);
+	}
+
+	@Override
+	public String getRequestTemplateParameters() {
+		return requestManager.getRequest(requestId).getRequestParams();
+	}
 }

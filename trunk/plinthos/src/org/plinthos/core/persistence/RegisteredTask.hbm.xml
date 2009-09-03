@@ -7,6 +7,7 @@
         <id name="taskType" column="task_type" type="string" length="255"/>
         <version name="version" access="field" column="OBJ_VERSION"/>
         <property name="executorClass" column="executor_class" length="1024"/>
+        <property name="executorLocation" column="executor_location" length="1024"/>
         <property name="etcSupported" column="etc_supported"/>
     </class>
 </hibernate-mapping>

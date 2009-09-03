@@ -54,6 +54,7 @@ public class PlinthosRequest implements Serializable {
 	private Date expiration;
 	private Date submissionTime;
 	private Date completionTime;
+	private double etc;
 	private String userEmail;
 	private RegisteredTask taskInfo;
 	private boolean cancelRequested;
@@ -128,7 +129,14 @@ public class PlinthosRequest implements Serializable {
 	public void setCompletionTime(Date completionTime) {
 		this.completionTime = completionTime;
 	}
-	
+
+	public double getEtc() {
+		return etc;
+	}
+
+	public void setEtc(double etc) {
+		this.etc = etc;
+	}
 	
 	public String getStatusMessage() {
 		return statusMessage;

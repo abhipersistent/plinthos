@@ -43,6 +43,9 @@ public interface RequestManager {
 	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId);
 	
 	public List<PlinthosRequest> findRequestsByCorrelationId(String correlationId);
+	
+	public List<PlinthosRequest> findRequestsByStatus(String status);
+	
 	/**
 	 * Returns the PlinthosRequest object matching the requestId.
 	 * 
@@ -68,6 +71,8 @@ public interface RequestManager {
 	public void updateProgressMessage(int requestId, String msg);
 	
 	public void updateStatusMessage(int requestId, String msg);	
+	
+	public void updateEtc(int requestId, double etc);
 	
 	public void saveResults(int requestId, String data);
 }

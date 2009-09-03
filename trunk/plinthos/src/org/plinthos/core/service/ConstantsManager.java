@@ -24,6 +24,7 @@ package org.plinthos.core.service;
 import java.util.Properties;
 
 import org.plinthos.core.framework.Constants;
+import org.plinthos.core.model.SystemConfigurationProperty;
 
 
 /**
@@ -46,5 +47,8 @@ public interface ConstantsManager {
 	public void loadSystemProperties();
 	
 	public void initSystemProperties(Properties props);
+	
+	public SystemConfigurationProperty findSystemConfiguration(
+			String systemConfigurationPropertyName);
 	
 }

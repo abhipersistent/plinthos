@@ -34,6 +34,7 @@ public class RequestDetails implements java.io.Serializable {
 	private Date submitDate;
 	private Date completionDate;
 	private Date expirationDate;
+	private double etc;	
 	private int priority;
     private String type;
 	private String requestData;
@@ -92,6 +93,14 @@ public class RequestDetails implements java.io.Serializable {
 
 	public void setCompletionDate(Date completionDate) {
 		this.completionDate = completionDate;
+	}
+
+	public double getEtc() {
+		return etc;
+	}
+
+	public void setEtc(double etc) {
+		this.etc = etc;
 	}
 
 	public Date getExpirationDate() {

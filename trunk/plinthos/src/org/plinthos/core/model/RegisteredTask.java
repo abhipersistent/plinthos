@@ -41,6 +41,7 @@ public class RegisteredTask  implements Serializable {
 	
 	private String taskType;	
 	private String executorClass;
+	private String executorLocation;	
 	private boolean etcSupported;
 
 	@SuppressWarnings("unused")
@@ -62,6 +63,14 @@ public class RegisteredTask  implements Serializable {
 		this.executorClass = exClass;
 	}
 
+	public String getExecutorLocation() {
+		return executorLocation;
+	}
+
+	public void setExecutorLocation(String executorLocation) {
+		this.executorLocation = executorLocation;
+	}
+	
 	public boolean isEtcSupported() {
 		return etcSupported;
 	}
@@ -80,6 +89,7 @@ public class RegisteredTask  implements Serializable {
 		return "[" +
 		"taskType=" + taskType +
 		", executorClass=" + executorClass +
+		", executorLocation=" + executorLocation +
 		", etcSupported=" + etcSupported +
 		"]";
 		

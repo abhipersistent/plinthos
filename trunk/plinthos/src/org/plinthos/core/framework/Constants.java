@@ -110,4 +110,7 @@ public class Constants {
 	 * in the request table.
 	 */
 	public static long MAX_INCOMPLETE_REQUESTS_ALLOWED_AT_A_TIME = -1;
+	
+	public static String  TASK_RESUBMIT_ON_PLINTHOS_RESTART_SUFFIX ="TaskReSubmitOnPlinthosRestart";
+	
 }
