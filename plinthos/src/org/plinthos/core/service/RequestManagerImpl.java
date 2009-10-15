@@ -130,12 +130,6 @@ class RequestManagerImpl implements RequestManager {
 						r.setStatus(status);
 						if( PlinthosRequestStatus.isComplete(status) ) {
 							r.setCompletionTime(new Date());
-						} else if( PlinthosRequestStatus.IN_PROGRESS.equals(status) ) {
-							// do nothing
-						} else if( PlinthosRequestStatus.SUBMITTED.equals(status) ) {
-							// do nothing
-						} else {
-							throw new RuntimeException("Invalid request status: " + status);
 						}
 					}
 					return null;
@@ -269,5 +263,21 @@ class RequestManagerImpl implements RequestManager {
 		};
 		
 		txTemplate.execute(txAction);
+	}
+
+	@Override
+	public List<PlinthosRequest> findRequestsByTaskTypeAndStatusAndCompletionTime(
+			final String taskType, final String status, final Date completionTime) {
+		TxTemplate txTemplate = new TxTemplate();
+
+		TxAction<List<PlinthosRequest>> txAction = 
+			new TxAction<List<PlinthosRequest>>() {
+				// @Override
+				public List<PlinthosRequest> run() {
+					return requestDao.findRequestsByTaskTypeAndStatusAndCompletionTime(taskType, status, completionTime);
+				}
+		};
+
+		return txTemplate.execute(txAction);
 	}
 }

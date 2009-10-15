@@ -113,4 +113,6 @@ public class Constants {
 	
 	public static String  TASK_RESUBMIT_ON_PLINTHOS_RESTART_SUFFIX ="TaskReSubmitOnPlinthosRestart";
 	
+	public static String BACKGROUND_PROPERTY_FILE_NAME="BackgroundTask.properties";
+	
 }

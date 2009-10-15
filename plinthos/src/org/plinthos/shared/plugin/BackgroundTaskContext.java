@@ -19,23 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.core.persistence;
+package org.plinthos.shared.plugin;
 
 import java.util.Date;
 import java.util.List;
 
-import org.plinthos.core.model.PlinthosRequest;
+import org.plinthos.core.service.RequestManager;
+import org.plinthos.shared.gateway.commands.request.RequestDetails;
 
-public interface PlinthosRequestDAO extends GenericDAO<PlinthosRequest, Integer> {
+public interface BackgroundTaskContext {
 
-	List<PlinthosRequest> findByStatus(String status);	
-	
-	List<PlinthosRequest> findNewRequests(int lastMaxRequestId);
-	
-	List<PlinthosRequest> findRequestsByCorrelationId(String correlationId);
-	
-	Long findRequestCountWithStatus(String[] statuses);
+	String getRequestParameters(int requestId);
 
-	List<PlinthosRequest> findRequestsByTaskTypeAndStatusAndCompletionTime(
+	List<RequestDetails> findRequestsByTaskTypeAndStatusAndCompletionTime(
 			String taskType, String status, Date completionTime);
+
+	void setRequestManager(RequestManager requestManager);
+
 }

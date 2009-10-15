@@ -98,7 +98,7 @@ public class TaskResourceUrlsFinder {
 	}
 	
 	//TODO: refactor this code to avoid duplication
-	private List<URL> getDefaultClasspathURLs( String classpath) {
+	public List<URL> getDefaultClasspathURLs( String classpath) {
 		List<URL> urlList = new ArrayList<URL>();
 		if( classpath != null && classpath.length() > 0 ) {
 			String[] parts = classpath.split(";");
