@@ -21,6 +21,7 @@
  */
 package org.plinthos.core.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.plinthos.core.model.PlinthosRequest;
@@ -75,4 +76,7 @@ public interface RequestManager {
 	public void updateEtc(int requestId, double etc);
 	
 	public void saveResults(int requestId, String data);
+
+	List<PlinthosRequest> findRequestsByTaskTypeAndStatusAndCompletionTime(
+			String taskType, String status, Date completionTime);	
 }

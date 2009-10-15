@@ -19,23 +19,34 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.core.persistence;
+package org.plinthos.shared.plugin;
+/**
+ * An abstraction of background independent jobs that may be executed using PlinthOS platform. 
+ * This interface declares notion of BackgroundTask.  
+ * 
+ * In order to develop background task  that can be deployed on PlinthOS platform,
+ * you need to extend BackgroundTask providing this API.
+ * 
+ * @version 1.0
+ */
+public class BackgroundTask {
 
-import java.util.Date;
-import java.util.List;
+	protected BackgroundTaskContext backgroundTaskContext;
 
-import org.plinthos.core.model.PlinthosRequest;
+	public void init() {
 
-public interface PlinthosRequestDAO extends GenericDAO<PlinthosRequest, Integer> {
+	}
 
-	List<PlinthosRequest> findByStatus(String status);	
-	
-	List<PlinthosRequest> findNewRequests(int lastMaxRequestId);
-	
-	List<PlinthosRequest> findRequestsByCorrelationId(String correlationId);
-	
-	Long findRequestCountWithStatus(String[] statuses);
+	public void start() {
 
-	List<PlinthosRequest> findRequestsByTaskTypeAndStatusAndCompletionTime(
-			String taskType, String status, Date completionTime);
+	}
+
+	public void stop() {
+
+	}
+
+	public void setContext(BackgroundTaskContext backgroundTaskContext) {
+		this.backgroundTaskContext = backgroundTaskContext;
+	}
+
 }

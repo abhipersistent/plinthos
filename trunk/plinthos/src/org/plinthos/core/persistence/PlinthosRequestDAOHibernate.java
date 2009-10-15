@@ -21,6 +21,7 @@
  */
 package org.plinthos.core.persistence;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Query;
@@ -62,6 +63,17 @@ class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, I
 		q.setParameterList("statusList", statuses);
 		
 		return (Long)q.uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")	
+	@Override
+	public List<PlinthosRequest> findRequestsByTaskTypeAndStatusAndCompletionTime(
+			String taskType, String status, Date completionTime) {
+		Query q = getSession().createQuery("from PlinthosRequest r where r.taskInfo.taskType = :taskType and r.status = :status and r.completionTime >= :completionTime");
+		q.setParameter("taskType", taskType);
+		q.setParameter("status", status);
+		q.setParameter("completionTime", completionTime);
+		return (List<PlinthosRequest>)q.list();
 	}
 	
 	

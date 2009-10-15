@@ -46,6 +46,7 @@ import org.plinthos.core.service.ConstantsManager;
 import org.plinthos.core.service.RequestManager;
 import org.plinthos.core.service.ServiceFactory;
 import org.plinthos.core.service.TaskRegistry;
+import org.plinthos.core.taskinvoker.BackgroundTaskInvoker;
 import org.plinthos.database.EmbeddedHSQLDBServer;
 
 public class PlinthOS {
@@ -77,6 +78,11 @@ public class PlinthOS {
 		 * Useful when we use embedded database that is recreated on startup. 
 		 */
 		loadInitialDataIfMissing();
+		
+		/*
+		 * Start the back ground tasks;
+		 */
+		BackgroundTaskInvoker.getInstance().startBackgroundTasks();
 		
 		/*
 		 * Process incomplete requests as per task type configuration   
@@ -145,6 +151,11 @@ public class PlinthOS {
 	public void shutdown() {
 		log.info("sutting down...");
 		
+		/*
+		 * Stop the back ground tasks;
+		 */
+		BackgroundTaskInvoker.getInstance().stopBackgroundTasks();
+		
 		if( env != null && env.getUseEmbeddedDatabaseServer() ) {
 			dbServer.stop();
 		}
@@ -197,24 +208,31 @@ public class PlinthOS {
 				reSubmitTaskTypes.add(registeredTask.getTaskType());
 			}
 		}
-    	
-        log.info("Attempting to resubmit/fail Running task on plinthos restart.");
+
         /*
          * Change request status to SUBMITTED/FAILED as per configuration. 
-         */
+         */    	
+        log.info("Start Changing RUNNING task status to  SUBMITTED/FAIL on plinthos restart.");
+        
         List<PlinthosRequest> reportRequests = requestManager.
         	findRequestsByStatus(PlinthosRequestStatus.IN_PROGRESS);
 		for (PlinthosRequest request : reportRequests) {
 			if (reSubmitTaskTypes.contains(request.getTaskInfo().getTaskType())) {
 				requestManager.updateRequestStatus(request.getId(),
 						PlinthosRequestStatus.SUBMITTED, "PlinthOS Restarted");
+				log.info("Change status to " + PlinthosRequestStatus.SUBMITTED
+						+ " for task id:" + request.getId() + " of task type:"
+						+ request.getTaskInfo().getTaskType());
 			} else {
 				requestManager.updateRequestStatus(request.getId(),
 						PlinthosRequestStatus.FAILED, "PlinthOS Restarted");
+				log.info("Change status to " + PlinthosRequestStatus.FAILED
+						+ " for task id:" + request.getId() + " of task type:"
+						+ request.getTaskInfo().getTaskType());
 			}
 		}
 
-        log.info("Done to resubmit/fail Running task on plinthos restart.");
+	    log.info("End Changing RUNNING task status to  SUBMITTED/FAIL on plinthos restart.");
 
     }	
 }
