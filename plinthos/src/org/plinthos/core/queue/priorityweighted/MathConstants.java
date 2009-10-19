@@ -19,21 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.core.queue;
+package org.plinthos.core.queue.priorityweighted;
 
-public interface QueueRequest {
+/** 
+ * Some simple mathematical constants.
+ *
+ * @author <a href="mailto:babis.marmanis@gmail.com">Babis Marmanis</a>
+ * @version 1.0
+ */
+public class MathConstants {
 
-	public static final long EXPIRATION_TIME_NEVER = Long.MAX_VALUE;	
-	public static final long EXPIRATION_TIME_DEFAULT = EXPIRATION_TIME_NEVER; 
-	public static final long SIZE_DEFAULT = 1L;
-	
-    public int getRequestId();
-    
-    public long getExpirationTime();
-    
-    public long getSize();
-    
-    public int getPriority();
- 
-    public long getTimeToLive();    
+    public static final double ZERO_DOUBLE = (double) 0.0;
+    public static final float  ZERO_FLOAT  = (float)  0.0;
+
+    public static final long ZERO_LONG = (long) 0;
+    public static final int  ZERO_INT  = (int)  0;
+
+    public static final double ONE_DOUBLE = (double) 1.0;
+
+    public static final double ONE_OVER_SIX = 0.16666666666666666666666666666667d;
+
 }

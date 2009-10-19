@@ -24,6 +24,7 @@ package org.plinthos.core.queue;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.plinthos.core.framework.Constants;
 import org.plinthos.core.model.PlinthosRequest;
 import org.plinthos.core.model.PlinthosRequestStatus;
 import org.plinthos.core.service.RequestManager;
@@ -57,16 +58,23 @@ public class QueuePlacerThread extends Thread {
 		//TODO: move into external configuration
 		final long REQUEST_PLACER_PAUSE_FOR_FULL_QUEUE = 1 * 1000;
 		final long REQUEST_PLACER_PAUSE_FOR_NO_REQUESTS = 1 * 1000;
-		
-		//TODO: add support for graceful service shutdown
+		final int MAX_REQUESTS_FETCH_SIZE = Constants.QUEUE_CAPACITY * 2;
 		try {
 			while( true ) {
 				
 				try {
 					List<PlinthosRequest> pRequests = 
-						requestManager.findNewRequests(placer.getMaxQueuedRequestId());
+						requestManager.findNewRequests(placer.getMaxQueuedRequestId(), MAX_REQUESTS_FETCH_SIZE);
 	
-					
+					// clean up requests that expired within queue 
+					Queue queue = placer.getQueue();
+					for( QueueRequest qR : queue.getExpiredRequests() ) {
+						requestManager.updateRequestStatus(
+								qR.getRequestId(), 
+								PlinthosRequestStatus.EXPIRED, 
+								"expired");
+						queue.remove(qR);
+					}
 					
 					boolean queueIsFull = false;
 					boolean noNewRequests = pRequests.size() == 0;
@@ -81,6 +89,16 @@ public class QueuePlacerThread extends Thread {
 									PlinthosRequestStatus.CANCELED, 
 									null);
 							continue;
+						}
+						
+						if( pR.getExpiration() != null ) {
+							if( System.currentTimeMillis() >= pR.getExpiration().getTime() ) {
+								pR.setStatus(PlinthosRequestStatus.EXPIRED);
+								requestManager.updateRequestStatus(pR.getId(), 
+										PlinthosRequestStatus.EXPIRED, 
+										"expired");
+								continue;
+							}
 						}
 						
 						if( placer.placeRequest(pR) == false ) {

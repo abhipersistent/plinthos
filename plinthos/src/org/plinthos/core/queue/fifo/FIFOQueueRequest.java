@@ -25,8 +25,11 @@ import org.plinthos.core.queue.QueueRequest;
 
 public class FIFOQueueRequest implements QueueRequest {
 
-    public int requestId;
-
+    private int requestId;
+    private int priority;
+    private long expirationTime;
+    private long size;
+    
 
     public FIFOQueueRequest(int reqId) {
     	requestId = reqId;
@@ -36,6 +39,10 @@ public class FIFOQueueRequest implements QueueRequest {
         return requestId;
     }
 
+    public long getTimeToLive() {
+    	return expirationTime - System.currentTimeMillis();
+    }
+    
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -56,6 +63,33 @@ public class FIFOQueueRequest implements QueueRequest {
 		if (requestId != other.requestId)
 			return false;
 		return true;
+	}
+
+	@Override
+	public long getExpirationTime() {
+		return expirationTime;
+	}
+
+	@Override
+	public int getPriority() {
+		return priority;
+	}
+
+	@Override
+	public long getSize() {
+		return size;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
+	public void setExpirationTime(long expirationTime) {
+		this.expirationTime = expirationTime;
+	}
+
+	public void setSize(long size) {
+		this.size = size;
 	}
 
     

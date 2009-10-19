@@ -119,19 +119,15 @@ public class ThreadPoolQueueProcessor implements QueueProcessor {
 	 * @throws InterruptedException
 	 */
 	private QueueRequest getNextRequest() {
-
 		log.debug("Entering into getNextRequest method");
-
 		QueueRequest q = null;
 		synchronized ( requestQueue ) {            	
-			
 			if (requestQueue.isEmpty()) {
 				log.debug("Queue is empty, waiting for request");
 			} else {
 				log.info("processing request");
 	            // log.debug ( "Leaving from getNextRequest method" );
 	            q = (QueueRequest) requestQueue.dequeue();
-	            
 			}
 		}                        
 		return q;
@@ -163,14 +159,6 @@ public class ThreadPoolQueueProcessor implements QueueProcessor {
 
 		log.debug("Leaving from createWorker method");
 	}
-
-//	void executeRequest(QueueRequest r) {
-//		// Remove the request from queued requests and add it to processing requests.
-//		PlinthosRequest request = requestManager.getRequest(r.getRequestId());
-//		Command task = CommandFactory.getCommand(request.getTaskInfo());
-//		task.setRequest(r);
-//		executor.execute(task);
-//	}
 	
 	protected RequestManager getRequestManager() {
 		return requestManager;

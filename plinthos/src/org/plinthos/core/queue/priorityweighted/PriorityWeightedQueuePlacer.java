@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.core.queue.fifo;
+package org.plinthos.core.queue.priorityweighted;
 
 //Log4J API
 import org.apache.log4j.Logger;
@@ -29,24 +29,16 @@ import org.plinthos.core.queue.QueuePlacer;
 import org.plinthos.core.queue.QueueRequest;
 
 
-/**
- * Provides implementation to place requests in the Queue. This class is
- * singleton.
- * 
- * @author <a href="mailto:babis.marmanis@gmail.com">Babis Marmanis</a>
- * @author <a href="mailto:kishorekirdat@gmail.com">Kishore Kirdat</a>
- * @version 1.0
- */
-public class FIFOQueuePlacer implements QueuePlacer {
+public class PriorityWeightedQueuePlacer implements QueuePlacer {
 
-	private static final Logger log = Logger.getLogger(FIFOQueuePlacer.class);
+	private static final Logger log = Logger.getLogger(PriorityWeightedQueuePlacer.class);
 
-	private FIFOQueue requestQueue;
+	private PriorityWeightedQueue queue;
 
 	private int maxQueuedRequestId;
 
-	public FIFOQueuePlacer(FIFOQueue q) {
-		requestQueue = q;
+	public PriorityWeightedQueuePlacer(PriorityWeightedQueue q) {
+		queue = q;
 		maxQueuedRequestId = -1;		
 	}
 
@@ -62,12 +54,12 @@ public class FIFOQueuePlacer implements QueuePlacer {
 		
 		boolean status = false;
 		
-		synchronized (requestQueue) {
-			status = requestQueue.enqueue(r);
+		synchronized (queue) {
+			status = queue.enqueue(r);
 			if (status) {
 				maxQueuedRequestId = Math.max(maxQueuedRequestId, r.getRequestId());				
 				log.info("Placed the request in the queue with id " + r.getRequestId());
-				requestQueue.notifyAll();
+				queue.notifyAll();
 			}
 		}
 		
@@ -78,15 +70,15 @@ public class FIFOQueuePlacer implements QueuePlacer {
 
 	// @Override
 	public boolean placeRequest(PlinthosRequest r) {
-		FIFOQueueRequest qR = new FIFOQueueRequest(r.getId());
+		PriorityWeightedQueueRequest qR = new PriorityWeightedQueueRequest(r.getId());
 		if( r.getExpiration() != null ) {
 			qR.setExpirationTime(r.getExpiration().getTime());
 		}
 		else {
-			qR.setExpirationTime(FIFOQueueRequest.EXPIRATION_TIME_DEFAULT);
+			qR.setExpirationTime(PriorityWeightedQueueRequest.EXPIRATION_TIME_DEFAULT);
 		}
 		qR.setPriority(r.getPriority());
-		qR.setSize(FIFOQueueRequest.SIZE_DEFAULT); 
+		qR.setSize(PriorityWeightedQueueRequest.SIZE_DEFAULT); 
 		
 		return placeRequest(qR);
 	}
@@ -94,6 +86,6 @@ public class FIFOQueuePlacer implements QueuePlacer {
 
 	@Override
 	public Queue getQueue() {
-		return requestQueue;
+		return queue;
 	}
 }
