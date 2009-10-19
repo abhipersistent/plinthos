@@ -88,13 +88,25 @@ public class DefaultCommandImpl implements Command {
     	
     	String executorLocation = task.getExecutorLocation();
     	
+    	if( executorClassName == null || executorClassName.trim().length() == 0 ) {
+    		throw new RuntimeException(
+    				"Task: " + task.getTaskType() + 
+    				" - task classname is not defined. requestId: " + requestId);
+    	}
+    	
+    	if( executorLocation == null || executorLocation.trim().length() == 0 ) {
+    		String msg = "Task: " + task.getTaskType() + 
+    			" - task library location (executorLocation) is not defined; " +
+    			"Please fix your configuration."; 
+    		throw new RuntimeException(msg);
+    	}
     	
 		String status = null;
 	    try { 
 	    	PlinthosTaskContextImpl ctx = new PlinthosTaskContextImpl();
 	    	ctx.setRequestManager(requestMgr);
 	    	ctx.setRequestId(requestId);
-
+	    	
     		status = loadAndExecuteTask( executorClassName, executorLocation, ctx,
     				String.valueOf(requestId), plinthosRequest.getRequestParams());
 	    	
