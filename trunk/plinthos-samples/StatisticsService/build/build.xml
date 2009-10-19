@@ -55,11 +55,12 @@
   
   <property name="apidoc.dir" value="${app.docs}/javadoc" />
 
-  <property name="app.exec.file" value="org.plinthos.sample.statistics.service.BasicStatisticsTask" />
   <property name="app.jar"       value="statistics-service-client.jar"/>
   <property name="plugin.jar"    value="statistics-service-plinthos-plugin.jar"/>  
-  
+
+  <property name="app.task.lib.location" value="BasicStatisticsTask" />  
   <property name="app.name" value="StatisticsService"/>
+  
 <!--
   <property name="deploy.plugin.home" value="c:/Servers/plinthos/server/plinthos-lib"/>
   <property name="deploy.client.home" value="c:/Servers/plinthos/client/StatisticsService"/>
@@ -117,15 +118,15 @@
 
   <target name="build-plugin" depends="build-jar">
 
-    <mkdir dir="${build.dist}/${app.exec.file}" />
+    <mkdir dir="${build.dist}/${app.task.lib.location}" />
     
     <!-- Copy the JAR file of the service -->
     <copy file="${build.jars}/${plugin.jar}"
-          todir="${build.dist}/${app.exec.file}"/>
+          todir="${build.dist}/${app.task.lib.location}"/>
 
           
     <!-- and all its dependencies -->
-    <copy todir="${build.dist}/${app.exec.file}">      
+    <copy todir="${build.dist}/${app.task.lib.location}">      
       <fileset dir="${app.lib}">
         <include name="**/*.jar" />
         <exclude name="${plinthos.sharedjar}"/>
@@ -156,10 +157,10 @@
   <!-- DEPLOY THE SERVICE AND ITS DEPENDENCIES -->
   <target name="deploy" depends="build">
   
-    <mkdir dir="${plinthos.server-plugins}/${app.exec.file}" />
+    <mkdir dir="${plinthos.server-plugins}/${app.task.lib.location}" />
 
-    <copy todir="${plinthos.server-plugins}/${app.exec.file}">      
-      <fileset dir="${build.dist}/${app.exec.file}">
+    <copy todir="${plinthos.server-plugins}/${app.task.lib.location}">      
+      <fileset dir="${build.dist}/${app.task.lib.location}">
         <include name="**/*" />
       </fileset>
     </copy>
@@ -176,7 +177,7 @@
 
   <target name="clean-deployed" depends="init">
     <delete dir="${plinthos.samples}/${app.name}"/>  
-    <delete dir="${plinthos.server-plugins}/${app.exec.file}"/>  
+    <delete dir="${plinthos.server-plugins}/${app.task.lib.location}"/>  
   </target>
 
   <!-- CLEAN UP -->
