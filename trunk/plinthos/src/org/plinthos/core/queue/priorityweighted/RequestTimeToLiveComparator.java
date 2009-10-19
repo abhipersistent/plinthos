@@ -19,30 +19,46 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.core.queue;
+package org.plinthos.core.queue.priorityweighted;
 
-import org.plinthos.core.model.PlinthosRequest;
+import java.util.Comparator;
 
 /**
- * Provides methods to place the objects in the queue.
- *
+ * This class is used to compare two <code> QueueRequest </code> objects based on the
+ * time to live attribute
+ * 
  * @author <a href="mailto:babis.marmanis@gmail.com">Babis Marmanis</a>
  * @version 1.0
  */
-public interface QueuePlacer {
+public class RequestTimeToLiveComparator implements Comparator<PriorityWeightedQueueRequest> {
 
-    /**
-     * Place the object in the Queue
-     *
-     *
-     * @param obj Object to be placed in the queue
-     *
-     */
-    boolean placeRequest ( QueueRequest r );
-    
-    boolean placeRequest ( PlinthosRequest r );    
-    
-    int getMaxQueuedRequestId();   
-    
-    Queue getQueue();
+	/**
+	 * Compares two requests objects based on time to live attribute
+	 * 
+	 * 
+	 * 
+	 * @param request1
+	 *            First request object
+	 * @param request2
+	 *            Second request object
+	 * 
+	 * @return int
+	 * 
+	 */
+	public int compare(PriorityWeightedQueueRequest request1, PriorityWeightedQueueRequest request2) {
+
+		if ((request1 == null) || (request2 == null)) {
+			throw new NullPointerException();
+		}
+
+		int result = 0;
+		if ( request1.getTimeToLive() > request2.getTimeToLive() ) {
+			result = 1;
+		} else if ( request1.getTimeToLive() < request2.getTimeToLive() ) {
+			result = -1;
+		} else if ( request1.getTimeToLive() == request2.getTimeToLive() ) {
+			result = 0;
+		}
+		return result;
+	}
 }

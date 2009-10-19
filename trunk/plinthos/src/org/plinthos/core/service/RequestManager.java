@@ -41,7 +41,7 @@ public interface RequestManager {
 	
 	public long findIncompleteRequestCount();
 	
-	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId);
+	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId, int topN);
 	
 	public List<PlinthosRequest> findRequestsByCorrelationId(String correlationId);
 	

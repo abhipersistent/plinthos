@@ -30,7 +30,7 @@ public interface PlinthosRequestDAO extends GenericDAO<PlinthosRequest, Integer>
 
 	List<PlinthosRequest> findByStatus(String status);	
 	
-	List<PlinthosRequest> findNewRequests(int lastMaxRequestId);
+	List<PlinthosRequest> findNewRequests(int lastMaxRequestId, int maxResults);
 	
 	List<PlinthosRequest> findRequestsByCorrelationId(String correlationId);
 	

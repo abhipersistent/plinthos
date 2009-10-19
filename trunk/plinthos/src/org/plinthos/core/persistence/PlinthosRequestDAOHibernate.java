@@ -41,10 +41,11 @@ class PlinthosRequestDAOHibernate extends GenericHibernateDAO<PlinthosRequest, I
 
 	@SuppressWarnings("unchecked")
 	// @Override
-	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId) {
-		Query q = getSession().createQuery("from PlinthosRequest r where r.id > :lastMaxRequestId and r.status = :status");
+	public List<PlinthosRequest> findNewRequests(int lastMaxRequestId, int maxResults) {
+		Query q = getSession().createQuery("from PlinthosRequest r where r.id > :lastMaxRequestId and r.status = :status order by r.id");
 		q.setParameter("lastMaxRequestId", lastMaxRequestId);
 		q.setParameter("status", PlinthosRequestStatus.SUBMITTED);
+		q.setMaxResults(maxResults);
 		return (List<PlinthosRequest>)q.list();
 	}
 

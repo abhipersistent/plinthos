@@ -21,71 +21,136 @@
  */
 package org.plinthos.core.queue.fifo;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.log4j.Logger;
+import org.plinthos.core.framework.Constants;
 import org.plinthos.core.queue.Queue;
+import org.plinthos.core.queue.QueueRequest;
 
 
 public class FIFOQueue implements Queue {
 
-	private BlockingQueue<Object> queue = null;
+	private static final Logger logger = Logger.getLogger(FIFOQueue.class);
+	
+	private int maxProcessedRequests = 1000;
+	
+	private List<FIFOQueueRequest> expiredRequests = 
+		new LinkedList<FIFOQueueRequest>();
+	private LinkedList<FIFOQueueRequest> processedRequests = 
+		new LinkedList<FIFOQueueRequest>();
+	private List<FIFOQueueRequest> inProgressRequests = 
+		new LinkedList<FIFOQueueRequest>();
 
-	private int processedRequestsCount = 0;
-	private int runningRequestsCount = 0;
+	private BlockingQueue<FIFOQueueRequest> queue = null;
+	
 	
 	public FIFOQueue(int capacity) {
-		queue = new LinkedBlockingQueue<Object>(capacity);
+		queue = new LinkedBlockingQueue<FIFOQueueRequest>(capacity);
 	}
 
 	// @Override	
-	public boolean isEmpty() {
+	public synchronized boolean isEmpty() {
 		return queue.isEmpty();
 	}
 
 	// @Override	
-	public int getCurrentSize() {
+	public synchronized int getCurrentSize() {
 		return queue.size();
 	}
 
 	// @Override	
-	public int getCapacity() {
+	public synchronized int getCapacity() {
 		return queue.size() + queue.remainingCapacity();
 	}
 	
 	// @Override
-	public Object dequeue() {
-		return queue.poll();
+	public synchronized Object dequeue() {
+
+		FIFOQueueRequest qR = null;
+
+		while( qR == null ) {
+			qR = queue.poll();
+
+			if( qR == null ) {
+				// there are no requests in the queue.
+				break;
+			}
+			
+			if( qR.getTimeToLive() < Constants.EXPIRE_TIME_FACTOR ) {
+				expiredRequests.add(qR);
+				logger.info("Request expired: " + qR);
+				qR = null; // read next request;
+			}
+		}
+		
+		return qR;
 	}
 
 	// @Override	
-	public boolean enqueue(Object item) {
-		return queue.offer(item);
+	public synchronized boolean enqueue(Object item) {
+		FIFOQueueRequest qR = (FIFOQueueRequest)item;
+		// returns false if there is no more space in the queue
+		return queue.offer(qR);
 	}
 
 	// @Override
-	public int getExpiredRequestsCount() {
-		return 0;
+	public synchronized int getExpiredRequestsCount() {
+		return expiredRequests.size();
 	}
 
 	// @Override
-	public int getInProgressRequestsCount() {
-		return runningRequestsCount;
+	public synchronized int getInProgressRequestsCount() {
+		return inProgressRequests.size();
 	}
 
 	// @Override
-	public int getProcessedRequestsCount() {
-		return processedRequestsCount;
+	public synchronized int getProcessedRequestsCount() {
+		return processedRequests.size();
 	}
 
 	// @Override
-	public void notifyQueueAboutRequestCompletion(Object r) {
-		processedRequestsCount++;
+	public  synchronized void notifyQueueAboutRequestCompletion(Object r) {
+		FIFOQueueRequest qR = (FIFOQueueRequest)r;
+		inProgressRequests.remove(r);
+		// remove first element in the list if we've reached the capacity
+		if( processedRequests.size() >= maxProcessedRequests ) {
+			processedRequests.remove();
+		}
+		processedRequests.add(qR);
 	}
 
 	// @Override
-	public void notifyQueueAboutRequestStart(Object r) {
-		runningRequestsCount++;
+	public synchronized void notifyQueueAboutRequestStart(Object r) {
+		FIFOQueueRequest qR = (FIFOQueueRequest)r;
+		inProgressRequests.add(qR);
+		// dequeue method has already removed the request but just for completeness 
+		// attempt to remove it here again.
+		queue.remove(qR);
+	}
+
+	@Override
+	public synchronized List<? extends QueueRequest> getExpiredRequests() {
+		return new ArrayList<FIFOQueueRequest>(expiredRequests);		
+	}
+
+	@Override
+	public synchronized List<? extends QueueRequest> getInProgressRequests() {
+		return new ArrayList<FIFOQueueRequest>(inProgressRequests);		
+	}
+
+	@Override
+	public synchronized List<? extends QueueRequest> getProcessedRequests() {
+		return new ArrayList<FIFOQueueRequest>(processedRequests);
+	}
+
+	@Override
+	public synchronized boolean remove(QueueRequest queueRequest) {
+		return expiredRequests.remove(queueRequest) || queue.remove(queueRequest);
 	}
 
 }

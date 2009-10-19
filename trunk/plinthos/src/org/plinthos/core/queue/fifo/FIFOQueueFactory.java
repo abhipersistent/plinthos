@@ -21,6 +21,7 @@
  */
 package org.plinthos.core.queue.fifo;
 
+import org.plinthos.core.framework.Constants;
 import org.plinthos.core.queue.Queue;
 import org.plinthos.core.queue.QueueFactory;
 import org.plinthos.core.queue.QueuePlacer;
@@ -28,10 +29,8 @@ import org.plinthos.core.queue.QueueProcessor;
 import org.plinthos.core.queue.ThreadPoolQueueProcessor;
 
 public class FIFOQueueFactory implements QueueFactory {
-
-	private static final int DEFAULT_QUEUE_SIZE = 10;
 	
-	private int queueSize = DEFAULT_QUEUE_SIZE;
+	private int queueSize = Constants.QUEUE_CAPACITY;
 	private FIFOQueue queue;
 	private QueuePlacer queuePlacer;	
 	private QueueProcessor queueProcessor;

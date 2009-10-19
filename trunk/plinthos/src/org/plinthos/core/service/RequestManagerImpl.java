@@ -80,7 +80,7 @@ class RequestManagerImpl implements RequestManager {
 	}
 
 	// @Override
-	public List<PlinthosRequest> findNewRequests(final int lastMaxRequestId) {
+	public List<PlinthosRequest> findNewRequests(final int lastMaxRequestId, final int topN) {
 
 		TxTemplate txTemplate = new TxTemplate();
 		
@@ -89,7 +89,7 @@ class RequestManagerImpl implements RequestManager {
 
 				// @Override
 				public List<PlinthosRequest> run() {
-					return requestDao.findNewRequests(lastMaxRequestId);
+					return requestDao.findNewRequests(lastMaxRequestId, topN);
 				}
 		};
 		

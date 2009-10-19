@@ -31,79 +31,54 @@ import java.sql.Timestamp;
  */
 public class Constants {
 
-//	public static final double ZERO_DOUBLE = 0.0;
-//
-//	public static final float ZERO_FLOAT = 0.0f;
-//
-//	public static final long ZERO_LONG = 0L;
-//
-//	public static final int ZERO_INT = 0;
-//
-//	public static final String HARDCODED = "HARDCODED";
-//
-//	public static double ALPHA = 0.0;
-//
-//	public static double BETA = 0.0;
-//
-//	public static double GAMMA = 0.0;
-//
-//	public static int FIFO_STACK_SIZE = 1;
-//
-//	public static long EXPIRE_TIME_FACTOR = 10000;
-//
-//	public static int RK4_SCHEME_GRID_POINTS = 5000;
-//
-//	public static int RK4_SCHEME_INTEGRATION_TIME = 300;
-//
-//	public static int RK4_DEFAULT_INITIAL_DOF = 6;
-//
-//	public static int QUEUE_CAPACITY = 32;
-//	
-//	// this is 3/4 of the capacity
-//	public static int QUEUE_TOLERANCE_INDEX = 24;
-//
-//	public static double QUEUE_TOLERANCE = 0.05d;
-//
-//	public static double QUEUE_WEIGHT_TOLERANCE = 0.05d;
-//
-//	// Priority Weighted Queue : Weight List values
-//
-//	public static String QUEUE_WEIGHTS_TYPE = HARDCODED;
-//
-//	public static int WEIGHT_LIST_START_INDEX = 1;
-//
-//	// public static int WEIGHT_LIST_END_INDEX = 6;
-//
-//	public static String WEIGHT_VALUES = "0.50d#0.25d#0.15d#0.05d#0.03d#0.02d";
-//
-//	public static String WEIGHT_VALUE_SEPERATOR = "#";
-//
+	public static final String HARDCODED = "HARDCODED";
+
+	public static double ALPHA = 0.0;
+
+	public static double BETA = 0.0;
+
+	public static double GAMMA = 0.0;
+
+	public static int FIFO_STACK_SIZE = 1;
+
+	public static long EXPIRE_TIME_FACTOR = 10000;
+
+	public static int RK4_SCHEME_GRID_POINTS = 5000;
+
+	public static int RK4_SCHEME_INTEGRATION_TIME = 300;
+
+	public static int RK4_DEFAULT_INITIAL_DOF = 6;
+
+	public static int QUEUE_CAPACITY = 32;
+	
+	// this is 3/4 of the capacity
+	public static int QUEUE_TOLERANCE_INDEX = 24;
+
+	public static double QUEUE_TOLERANCE = 0.05d;
+
+	public static double QUEUE_WEIGHT_TOLERANCE = 0.05d;
+
+	// Priority Weighted Queue : Weight List values
+
+	public static String QUEUE_WEIGHTS_TYPE = HARDCODED;
+
+	public static int WEIGHT_LIST_START_INDEX = 1;
+
+	// public static int WEIGHT_LIST_END_INDEX = 6;
+
+	public static String WEIGHT_VALUES = "0.50d#0.25d#0.15d#0.05d#0.03d#0.02d";
+
+	public static String WEIGHT_VALUE_SEPERATOR = "#";
+
 	public static int MAX_THREAD_POOL_SIZE = 5;
 
 	public static int MIN_THREAD_POOL_SIZE = 1;
-//
-//	public static final String ERROR_BUNDLE = "org.plinthos.resbundles.ErrorMessages";
-//
-//	public static String SUPPORT_EMAIL = "babis.marmanis@gmail.com";
-//
+
 	public static Timestamp SYSTEM_CONFIG_LAST_UPDATE = null;
 	
 	public static String SERVICES_LIBRARY = "../server-plugins";
 	
 	public static String QUEUE_FACTORY = "";
-
-//
-//	// Email related constants
-//
-//	public static final String EMAIL_CONTENT_TYPE = "text/plain";
-//
-//	public static final String EMAIL_MESSAGE = "Message";
-//
-//	public static final String EMAIL_SUBJECT = "Subject";
-//
-//	public static final String EMAIL_TO_ADDRESS = "ToAddress";
-//
-//	public static final String MAILER_BEAN_JNDI_NAME = "java:/Mail";
 
 	/*
 	 * This property has no effect if client creates requests directly

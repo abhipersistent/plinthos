@@ -19,21 +19,44 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.core.queue;
+package org.plinthos.core.queue.priorityweighted;
 
-public interface QueueRequest {
+import org.plinthos.core.framework.Constants;
+import org.plinthos.core.queue.Queue;
+import org.plinthos.core.queue.QueueFactory;
+import org.plinthos.core.queue.QueuePlacer;
+import org.plinthos.core.queue.QueueProcessor;
+import org.plinthos.core.queue.ThreadPoolQueueProcessor;
 
-	public static final long EXPIRATION_TIME_NEVER = Long.MAX_VALUE;	
-	public static final long EXPIRATION_TIME_DEFAULT = EXPIRATION_TIME_NEVER; 
-	public static final long SIZE_DEFAULT = 1L;
+public class PriorityWeightedQueueFactory implements QueueFactory {
+
+	private int queueSize = Constants.QUEUE_CAPACITY;
 	
-    public int getRequestId();
-    
-    public long getExpirationTime();
-    
-    public long getSize();
-    
-    public int getPriority();
- 
-    public long getTimeToLive();    
+	private PriorityWeightedQueue queue;
+	private QueuePlacer queuePlacer;	
+	private QueueProcessor queueProcessor;
+	
+	public PriorityWeightedQueueFactory() {
+		
+		queue = new PriorityWeightedQueue(queueSize);
+		queueProcessor = new ThreadPoolQueueProcessor(queue);
+		queuePlacer = new PriorityWeightedQueuePlacer(queue);
+ 	}
+	
+	// @Override
+	public Queue getQueue() {
+		return queue;
+	}
+
+	// @Override
+	public QueuePlacer getQueuePlacer() {
+		return queuePlacer;
+	}
+
+	// @Override
+	public QueueProcessor getQueueProcessor() {
+		return queueProcessor;
+	}
+
+
 }

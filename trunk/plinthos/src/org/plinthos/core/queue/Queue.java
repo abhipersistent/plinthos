@@ -21,6 +21,8 @@
  */
 package org.plinthos.core.queue;
 
+import java.util.List;
+
 /**
  * A queue is a container that stores a list of items. Items can be inserted and
  * removed from the queue based on the <b> Priority Weighted Queue Algorithm <b>
@@ -132,4 +134,11 @@ public interface Queue {
 
     int getExpiredRequestsCount();
 
+    List<? extends QueueRequest> getExpiredRequests();
+
+    List<? extends QueueRequest> getProcessedRequests();
+
+    List<? extends QueueRequest> getInProgressRequests();
+    
+    boolean remove(QueueRequest queueRequest);
 }

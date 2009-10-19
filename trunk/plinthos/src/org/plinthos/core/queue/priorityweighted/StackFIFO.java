@@ -19,30 +19,72 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.plinthos.core.queue;
+package org.plinthos.core.queue.priorityweighted;
 
-import org.plinthos.core.model.PlinthosRequest;
+
 
 /**
- * Provides methods to place the objects in the queue.
- *
+ * This is a stack that implements a FIFO algorithm.
+ * 
  * @author <a href="mailto:babis.marmanis@gmail.com">Babis Marmanis</a>
  * @version 1.0
  */
-public interface QueuePlacer {
+public class StackFIFO {
 
-    /**
-     * Place the object in the Queue
-     *
-     *
-     * @param obj Object to be placed in the queue
-     *
-     */
-    boolean placeRequest ( QueueRequest r );
-    
-    boolean placeRequest ( PlinthosRequest r );    
-    
-    int getMaxQueuedRequestId();   
-    
-    Queue getQueue();
+	int size;
+	long[] stack;
+
+	public StackFIFO(int size) {
+		this.size = size;
+		stack = new long[size];
+
+		for (int i = 0; i < size; i++) {
+			stack[i] = MathConstants.ZERO_LONG;
+		}
+	}
+
+	public void push(long val) {
+
+		for (int i = size - 2; i >= 0; i--) {
+
+			stack[i + 1] = stack[i];
+		}
+
+		stack[0] = val;
+	}
+
+	public double getMeanValue() {
+
+		double meanValue = MathConstants.ZERO_DOUBLE;
+		int nonZeroValues = 0;
+
+		for (int i = size - 1; i >= 0; i--) {
+
+			if (stack[i] > MathConstants.ZERO_LONG) {
+				meanValue += stack[i];
+				nonZeroValues++;
+			}
+		}
+		if (nonZeroValues == 0)
+			nonZeroValues = 1;
+
+		meanValue /= nonZeroValues;
+
+		return meanValue;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public double[] toConstantArray(int dof) {
+
+		double[] stack = new double[dof];
+
+		for (int i = 0; i < dof; i++) {
+			stack[i] = getMeanValue();
+		}
+
+		return stack;
+	}
 }
