@@ -76,6 +76,13 @@ public class BasicStatisticsTask extends PlinthosTask {
 		request.setSum(StatUtils.sum(x));
 		request.setAverage(StatUtils.mean(x));
 		request.setGeometricMean(StatUtils.geometricMean(x));
-		request.setVariance(StatUtils.variance(x));		
+		request.setVariance(StatUtils.variance(x));
+		// pause for 10 second
+		try {
+			Thread.sleep(10000);
+		}
+		catch(InterruptedException e) {
+			// ignore
+		}
 	}
 }

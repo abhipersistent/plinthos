@@ -30,6 +30,8 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Random;
 
 import org.plinthos.sample.statistics.data.BasicStatisticsRequest;
@@ -68,6 +70,9 @@ public class BasicStatisticsClient {
 			if (args[1] != null) {
 				loop = getLoop(args[1]);
 			}
+
+			Random rnd = new Random();
+			long THIRTY_SECONDS_IN_MILLISECONDS = 30000;
 			
 			if (args[0].equalsIgnoreCase("direct")) {
 				Connection jdbc = null;
@@ -98,7 +103,10 @@ public class BasicStatisticsClient {
 					SubmitRequest xml = new SubmitRequest();
 					xml.setUserId("babis");
 					xml.setRequestData(getRequest());
-					xml.setPriority(10);
+					xml.setPriority(1 + rnd.nextInt(10));
+					Calendar c = GregorianCalendar.getInstance();
+					c.setTimeInMillis(System.currentTimeMillis() + THIRTY_SECONDS_IN_MILLISECONDS);
+					xml.setExpirationDate(c.getTime());
 					xml.setCorrelationId("CLIENT-ID-1");
 					xml.setType("Basic-Statistics");
 					
