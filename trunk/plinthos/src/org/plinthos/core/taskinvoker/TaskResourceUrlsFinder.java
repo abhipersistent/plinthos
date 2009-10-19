@@ -22,6 +22,7 @@
 package org.plinthos.core.taskinvoker;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -54,20 +55,44 @@ public class TaskResourceUrlsFinder {
 		config = PlinthosEnvironmentHolder.getInstance().getConfig();
 		PLINTHOS_DIRECTORY = config.getPlinthosDir();
 	}
-	
-	public URL[] getUrls(String serviceName) {
-		
-		// Since the application runs within JBoss
-		// this is going to be JBOSS_HOME\bin (on Windows)
+
+	private File getTaskLibDir(String location) {
 		File plinthosDir = new File(PLINTHOS_DIRECTORY);
 		
 		StringBuilder b = new StringBuilder(plinthosDir.getPath());
 		b.append(PATH_SEPARATOR).append(Constants.SERVICES_LIBRARY);
-		b.append(PATH_SEPARATOR).append(serviceName);
+		b.append(PATH_SEPARATOR).append(location);
+
+		File taskLibDir = new File(b.toString());
+
+
+		if( !taskLibDir.isDirectory() ) {
+			String path = null;
+			// canonical path won't have .. or . as part of it.
+			try {
+				path = taskLibDir.getCanonicalPath();
+			}
+			catch(IOException e) {
+				logger.error("Failed to obtain canonicalPath for task lib dir. Will use absolutePath: ", e);
+				// fallback on getAbsolutePath
+				path = taskLibDir.getAbsolutePath();
+			}
+			String msg = "Invalid task library path  '" + location + 
+				"' directory: '" + path + "' doesn't exist.";
+			logger.error(msg);
+			throw new RuntimeException(msg);
+		}
 		
-		File plinthosLibDir = new File(b.toString());
+		logger.info("Task location: " + location + ", using task library path: '" + taskLibDir + "'");
 		
-		String[] fNames = plinthosLibDir.list();
+		return taskLibDir;
+	}
+	
+	public URL[] getUrls(String location) {
+		
+		File taskLibDir = getTaskLibDir(location);
+		
+		String[] fNames = taskLibDir.list();
 		
 		List<URL> urls = new ArrayList<URL>();
 		
@@ -77,7 +102,7 @@ public class TaskResourceUrlsFinder {
 			if (fName.endsWith("jar")) {
 				
 				buffer.delete(0, buffer.length());
-				buffer.append(plinthosLibDir.getPath()).append(PATH_SEPARATOR);
+				buffer.append(taskLibDir.getPath()).append(PATH_SEPARATOR);
 				buffer.append(fName).append("!/");
 				String fPath = buffer.toString();
 		        logger.debug("adding jar: " + fPath);		
@@ -91,8 +116,10 @@ public class TaskResourceUrlsFinder {
 			}
 		}
 		
-
+		logger.info("Building task classpath for location: " + location + ", adding default task classpath: " + config.getTaskClasspath());
 		urls.addAll( getDefaultClasspathURLs( config.getTaskClasspath() ) );
+		
+		logger.info("Complete task classpath for location: " + location + ", task classpath urls: " + urls);
 		
     	return urls.toArray(new URL[urls.size()]);
 	}

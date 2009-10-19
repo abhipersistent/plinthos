@@ -43,13 +43,13 @@ public class TaskClassLoaderFactory {
 		return instance;
 	}
 	
-	public synchronized ClassLoader getClassLoaderForTask(String taskId) {
-		ClassLoader classLoaderForTask = cachedClassLoaders.get(taskId);
+	public synchronized ClassLoader getClassLoaderForTask(String taskLibLocation) {
+		ClassLoader classLoaderForTask = cachedClassLoaders.get(taskLibLocation);
 		
 		if( classLoaderForTask == null ) {
-			logger.info("creating new ClassLoader for taskId: " + taskId);
-			classLoaderForTask = createNewClassLoader(taskId);
-			cachedClassLoaders.put(taskId, classLoaderForTask);
+			logger.info("creating new ClassLoader for taskId: " + taskLibLocation);
+			classLoaderForTask = createNewClassLoader(taskLibLocation);
+			cachedClassLoaders.put(taskLibLocation, classLoaderForTask);
 		}
 		
 		return classLoaderForTask;

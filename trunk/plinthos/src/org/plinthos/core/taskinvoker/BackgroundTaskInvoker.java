@@ -92,7 +92,13 @@ public class BackgroundTaskInvoker {
 				executorLocation=executorLocations[i];
 		    	ctx = new BackgroundTaskContextImpl();
 		    	ctx.setRequestManager(ServiceFactory.getInstance().getRequestManager());
-
+		    	
+		    	if( executorLocation == null || executorLocation.trim().length() == 0 ) {
+		    		String msg = "background task: " + executorClassName + ", executorLocation is null or empty string; please fix your configuration."; 
+		    		log.error(msg);
+		    		throw new RuntimeException(msg);
+		    	}
+		    	
 		    	loadAndStartTask( executorClassName, executorLocation, ctx);
 		    	log.info(" Start Background task: executor_class= "+ executorClassName + " executor_location=" + executorLocation);	    		
 			}
