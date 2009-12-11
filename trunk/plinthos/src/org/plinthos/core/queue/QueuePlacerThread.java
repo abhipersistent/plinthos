@@ -117,8 +117,8 @@ public class QueuePlacerThread extends Thread {
 					
 					Thread.yield();
 				}
-				catch(InterruptedException e) {
-					
+				catch(Throwable e) {
+					log.error("Encounter exception and Ignored:" + e.getMessage(), e);
 				}
 				
 			}
