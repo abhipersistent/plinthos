@@ -147,7 +147,7 @@ public class PlinthosGateway {
 			int requestId = Integer.parseInt(r.getRequestId());
 			PlinthosRequest pR = requestManager.getRequest(requestId);
 			RequestDetails vo = new RequestDetails();
-			if( vo != null ) {
+			if( pR != null ) {
 				loadRequestDetails(vo, pR, r.isIncludeRequestData(), r.isIncludeResponseData());
 				requests.add(vo);
 			}
