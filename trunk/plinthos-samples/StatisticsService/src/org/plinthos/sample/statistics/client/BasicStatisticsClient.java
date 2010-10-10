@@ -54,8 +54,18 @@ import com.thoughtworks.xstream.XStream;
  */
 public class BasicStatisticsClient {
 
+	boolean isRangedDefined = false;
+	
+	int left  = 0;
+	int right = 9;
+	
 	/**
 	 * Submit a set of data to PlinthOS for basic statistical processing.
+	 * 
+	 * The first argument sets the protocol; it should be either "http" or "direct".
+	 * The second argument sets the port.  
+	 * The third argument sets the number of requests to be submitted; 
+	 * if a number is not provided then a single request is sent
 	 * 
 	 * @author <a href="mailto:babis.marmanis@gmail.com">Babis Marmanis</a>
 	 * 
@@ -64,14 +74,33 @@ public class BasicStatisticsClient {
 	 */
 	public static void main(String[] args) throws Exception {
 		
+		BasicStatisticsClient client = new BasicStatisticsClient();
+		client.run(args);
+	}
+
+	public void run(String[] args) throws Exception {
 		int loop = 1;
 		
 		if (args.length > 0) {
-			if (args[1] != null) {
-				loop = getLoop(args[1]);
+			if (args[2] != null) {
+				loop = getLoop(args[2]);
 			}
+			
+			if (args[3] != null) {
 
+				isRangedDefined = true;
+				left = Integer.parseInt(args[3]);
+				
+				if (args[4] != null) {
+			
+					right = Integer.parseInt(args[4]);
+				} else {
+					right = left+10;
+				}
+			}
+			
 			Random rnd = new Random();
+			
 			long THIRTY_SECONDS_IN_MILLISECONDS = 30000;
 			
 			if (args[0].equalsIgnoreCase("direct")) {
@@ -85,7 +114,13 @@ public class BasicStatisticsClient {
 		        System.out.println ("Database connection established");
 		
 		        for (int i=0; i<loop;i++) {
-			        String requestXml = getRequest();
+			        String requestXml;
+			        
+			        if (isRangedDefined) {
+			        	requestXml = getRequest(left,right);
+			        } else {
+			        	requestXml = getRequest();
+			        }
 			        
 			        Statement s = jdbc.createStatement();
 			        s.executeUpdate ("INSERT INTO request "+
@@ -98,11 +133,28 @@ public class BasicStatisticsClient {
 		        
 			} else if (args[0].equalsIgnoreCase("http")) {
 	
+				String port;
+				if (args[1] != null) {
+					port = args[1];
+				} else {
+					port="8080";
+				}
+
+				
 		        for (int i=0; i<loop;i++) {
 					// Create the XML request
 					SubmitRequest xml = new SubmitRequest();
 					xml.setUserId("babis");
-					xml.setRequestData(getRequest());
+
+			        String requestXml;
+			        
+			        if (isRangedDefined) {
+			        	requestXml = getRequest(left,right);
+			        } else {
+			        	requestXml = getRequest();
+			        }
+					
+					xml.setRequestData(requestXml);
 					xml.setPriority(1 + rnd.nextInt(10));
 					Calendar c = GregorianCalendar.getInstance();
 					c.setTimeInMillis(System.currentTimeMillis() + THIRTY_SECONDS_IN_MILLISECONDS);
@@ -115,7 +167,7 @@ public class BasicStatisticsClient {
 					
 					// Post it
 				    //URL url = new URL("http://localhost:8080/plinthos/service/PlinthosServiceGateway");
-					URL url = new URL("http://localhost:8080/plinthos/gateway");
+					URL url = new URL("http://localhost:"+port+"/plinthos/gateway");
 					
 				    java.net.HttpURLConnection con = (HttpURLConnection) url.openConnection();
 		
@@ -159,7 +211,7 @@ public class BasicStatisticsClient {
 			System.err.print("You must use at least one argument. Acceptable values are:\n    direct\n    http");
 		}
 	}
-
+	
 	private static int getLoop(String val) {
 		int i = Integer.parseInt(val);
 		
@@ -187,5 +239,24 @@ public class BasicStatisticsClient {
 		XStream xstream = new XStream();
 		
 		return xstream.toXML(request);
+	}
+	
+	private static String  getRequest(int a, int b) throws Exception {
+		
+		//Build the instance of BasicStatisticsRequest
+		BasicStatisticsRequest request = new BasicStatisticsRequest("test data {&gt;}");
+		
+		int size = b-a;
+		double[] values = new double[size+1];
+		
+		for (int i=0; i <= size; i++) {
+			values[i] = a+i;
+		}
+		
+		request.setValues(values);
+		
+		XStream xstream = new XStream();
+		
+		return xstream.toXML(request);		
 	}
 }
