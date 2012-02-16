@@ -106,13 +106,22 @@ public class DefaultPlinthosEnvironmentBuilder {
 			while( names.hasMoreElements() ) {
 				String name = names.nextElement();
 				String value = nodeProps.getProperty(name);
-
+				boolean isSecret = false;
 				String existingValue = System.getProperty(name); 
-				if( existingValue == null ) {
-					System.setProperty(name, value);
-					logger.info("set node property: " + name + "=" + value);
+				
+				if (name.equals("plinthos.node.jdbc.connection.password")) {
+					isSecret = true;
 				}
-				else {
+				if (existingValue == null) {
+					if (isSecret) {
+						value = CryptoHelper.decrypt(value);
+					}
+					System.setProperty(name, value);
+					if(!isSecret){
+						logger.info("set node property: " + name + "=" + value);
+					}
+				}
+				else if (!isSecret) {
 					logger.info("skipped node property: " + name + "=" + value + 
 							" because it is already set to: " + existingValue);
 				}
