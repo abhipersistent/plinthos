@@ -12,7 +12,6 @@ set CLASSPATH=%PLINTHOS_DIR%\lib\commons-collections-3.1.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\commons-logging-api.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\commons-logging.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\dom4j-1.6.1.jar;%CLASSPATH%
-set CLASSPATH=%PLINTHOS_DIR%\lib\hibernate-annotations.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\hibernate3.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\c3p0-0.9.1.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\hsqldb.jar;%CLASSPATH%
@@ -28,6 +27,9 @@ set CLASSPATH=%PLINTHOS_DIR%\lib\slf4j-log4j12-1.5.6.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\xpp3_min-1.1.4c.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\xstream-1.3.1.jar;%CLASSPATH%
 set CLASSPATH=%PLINTHOS_DIR%\lib\commons-io-1.4.jar;%CLASSPATH%
+set CLASSPATH=%PLINTHOS_DIR%\lib\commons-codec-1.5.jar;%CLASSPATH%
+set CLASSPATH=%PLINTHOS_DIR%\lib\commons-lang-2.4.jar;%CLASSPATH%
+set CLASSPATH=%PLINTHOS_DIR%\lib\hibernate-jpa-2.0-api-1.0.1.Final.jar;%CLASSPATH%
 
 set JPDA=
 @rem set JPDA=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=8788,server=y,suspend=n

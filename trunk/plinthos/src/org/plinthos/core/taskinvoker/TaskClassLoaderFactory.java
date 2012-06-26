@@ -58,7 +58,7 @@ public class TaskClassLoaderFactory {
 	private ClassLoader createNewClassLoader(String taskId) {
 		TaskResourceUrlsFinder plinthosUtil = new TaskResourceUrlsFinder();
 		URLClassLoader classLoaderForTask = URLClassLoader.newInstance(
-				plinthosUtil.getUrls(taskId) ); 
+				plinthosUtil.getUrls(taskId), Thread.currentThread().getContextClassLoader()); 
 		return classLoaderForTask;
 	}
 }
