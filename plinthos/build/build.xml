@@ -113,8 +113,8 @@ _______________________/                              \___________________/
            fork="true"
            destdir="${build.classes}"
            deprecation="${compile.deprecation}"
-           debug="${compile.debug}"
-           failonerror="${compile.failonerror}">
+           debug="${compile.debug}">
+           <!--failonerror="${compile.failonerror}"-->
       <classpath>
         <pathelement path="${compile.classpath}"/>
       </classpath>
