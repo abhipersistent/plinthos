@@ -3,7 +3,7 @@
   <description>
       _______________________________________________________________________
 
-		             A Sample Statistics Service for PlinthOS
+          A Sample Statistics Service for PlinthOS
       _______________________________________________________________________
       
           PlinthOS:  Open Source Multi-Core and Distributed Computing
@@ -46,6 +46,7 @@
   <property name="app.lib"   value="${app.root}/lib" />
   <property name="app.src"   value="${app.root}/src" />
   <property name="app.config"   value="${app.root}/config" />
+  <property name="app.scripts"   value="${app.root}/scripts" />
 
   
   <property name="build.dist"      value="${app.build}/dist" />
@@ -139,7 +140,7 @@
     <mkdir dir="${build.dist}/${app.name}" />
     
      <copy overwrite="true" todir="${build.dist}/${app.name}">
-     	  <fileset dir="${app.config}">
+     	  <fileset dir="${app.scripts}">
      	  	<include name="**/*"/>
      	  </fileset>
      </copy>
