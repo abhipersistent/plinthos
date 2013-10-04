@@ -82,22 +82,23 @@ public class BasicStatisticsClient {
 		int loop = 1;
 		
 		if (args.length > 0) {
-			if (args[2] != null) {
-				loop = getLoop(args[2]);
-			}
-			
-			if (args[3] != null) {
 
-				isRangedDefined = true;
-				left = Integer.parseInt(args[3]);
-				
-				if (args[4] != null) {
-			
-					right = Integer.parseInt(args[4]);
-				} else {
-					right = left+10;
-				}
-			}
+//			if (args[2] != null) {
+//				loop = getLoop(args[2]);
+//			}
+//			
+//			if (args[3] != null) {
+//
+//				isRangedDefined = true;
+//				left = Integer.parseInt(args[3]);
+//				
+//				if (args[4] != null) {
+//			
+//					right = Integer.parseInt(args[4]);
+//				} else {
+//					right = left+10;
+//				}
+//			}
 			
 			Random rnd = new Random();
 			
@@ -134,7 +135,7 @@ public class BasicStatisticsClient {
 			} else if (args[0].equalsIgnoreCase("http")) {
 	
 				String port;
-				if (args[1] != null) {
+				if (args.length==2) {
 					port = args[1];
 				} else {
 					port="8080";
